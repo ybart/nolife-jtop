@@ -446,14 +446,8 @@ class Controller extends Object {
 		$this->Component->init($this);
 
 		if ($this->uses !== null || ($this->uses !== array())) {
-			if (empty($this->passedArgs) || !isset($this->passedArgs['0'])) {
-				$id = false;
-			} else {
-				$id = $this->passedArgs['0'];
-			}
-
 			if ($this->uses === false) {
-				$this->loadModel($this->modelClass, $id);
+				$this->loadModel($this->modelClass);
 			} elseif ($this->uses) {
 				$uses = is_array($this->uses) ? $this->uses : array($this->uses);
 				$modelClassName = $uses[0];
