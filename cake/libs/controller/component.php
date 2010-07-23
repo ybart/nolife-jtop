@@ -87,7 +87,7 @@ class Component extends Object {
  */
 	function initialize(&$controller) {
 		foreach (array_keys($this->_loaded) as $name) {
-			$component =& $this->_loaded[$name];
+			$component = $this->_loaded[$name];
 
 			if (method_exists($component,'initialize') && $component->enabled === true) {
 				$settings = array();
@@ -135,7 +135,7 @@ class Component extends Object {
 		$response = array();
 
 		foreach ($this->_primary as $name) {
-			$component =& $this->_loaded[$name];
+			$component = $this->_loaded[$name];
 
 			if ($component->enabled === true && method_exists($component, 'beforeRedirect')) {
 				$resp = $component->beforeRedirect($controller, $url, $status, $exit);
@@ -178,7 +178,7 @@ class Component extends Object {
  */
 	public function triggerCallback($callback, &$controller) {
 		foreach ($this->_primary as $name) {
-			$component =& $this->_loaded[$name];
+			$component = $this->_loaded[$name];
 			if (method_exists($component, $callback) && $component->enabled === true) {
 				$component->{$callback}($controller);
 			}
@@ -231,7 +231,7 @@ class Component extends Object {
 			}
 
 			if (isset($this->_loaded[$component])) {
-				$object->{$component} =& $this->_loaded[$component];
+				$object->{$component} = $this->_loaded[$component];
 
 				if (!empty($config) && isset($this->__settings[$component])) {
 					$this->__settings[$component] = array_merge($this->__settings[$component], $config);
@@ -240,12 +240,12 @@ class Component extends Object {
 				}
 			} else {
 				if ($componentCn === 'SessionComponent') {
-					$object->{$component} =& new $componentCn($base);
+					$object->{$component} = new $componentCn($base);
 				} else {
-					$object->{$component} =& new $componentCn();
+					$object->{$component} = new $componentCn();
 				}
 				$object->{$component}->enabled = true;
-				$this->_loaded[$component] =& $object->{$component};
+				$this->_loaded[$component] = $object->{$component};
 				if (!empty($config)) {
 					$this->__settings[$component] = $config;
 				}

@@ -352,6 +352,36 @@ class Controller extends Object {
 	}
 
 /**
+ * Magic getter method to lazy load some class variables
+ *
+ * @return boolean true if the $name variable could be loaded as a model associated to this controller
+ */
+	public function __isset($name) {
+		if ($this->uses === false && $name == $this->modelClass) {
+			return $this->loadModel($this->modelClass);
+		} elseif (is_array($this->uses)) {
+			foreach ($this->uses as $modelClass) {
+				list(, $class) = pluginSplit($modelClass);
+				if ($name === $class) {
+					return $this->loadModel($modelClass);
+				}
+			}
+		}
+		return false;
+	}
+
+/**
+ * Magic getter method to trigger __isset and lazy load some class variables
+ *
+ * @return mixed
+ */
+	public function __get($name) {
+		if (isset($this->{$name})) {
+			return $this->{$name};
+		}
+	}
+
+/**
  * Merge components, helpers, and uses vars from AppController and PluginAppController.
  *
  * @return void
@@ -446,18 +476,9 @@ class Controller extends Object {
 		$this->Component->init($this);
 
 		if ($this->uses !== null || ($this->uses !== array())) {
-			if ($this->uses === false) {
-				$this->loadModel($this->modelClass);
-			} elseif ($this->uses) {
-				$uses = is_array($this->uses) ? $this->uses : array($this->uses);
-				$modelClassName = $uses[0];
-				if (strpos($uses[0], '.') !== false) {
-					list($plugin, $modelClassName) = explode('.', $uses[0]);
-				}
-				$this->modelClass = $modelClassName;
-				foreach ($uses as $modelClass) {
-					$this->loadModel($modelClass);
-				}
+			if ($this->uses) {
+				$this->uses = $uses = is_array($this->uses) ? $this->uses : array($this->uses);
+				list(, $this->modelClass) = pluginSplit($uses[0]);
 			}
 		}
 		return true;
