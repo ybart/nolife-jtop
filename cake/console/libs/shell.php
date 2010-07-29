@@ -436,16 +436,20 @@ class Shell extends Object {
 				return false;
 			}
 		}
-		if (!class_exists('File')) {
-			require LIBS . 'file.php';
-		}
 
-		if ($File = new File($path, true)) {
-			$data = $File->prepare($contents);
-			$File->write($data);
+		try {
+			$File = new SplFileObject($path, 'w');
+
+			$lineBreak = "\n";
+			if (DIRECTORY_SEPARATOR == '\\') {
+				$lineBreak = "\r\n";
+			}
+			$data = strtr($data, array("\r\n" => $lineBreak, "\n" => $lineBreak, "\r" => $lineBreak));
+
+			$File->fwrite($data);
 			$this->out(sprintf(__('Wrote `%s`'), $path));
 			return true;
-		} else {
+		} catch (Exception $e) {
 			$this->err(sprintf(__('Could not write to `%s`.'), $path), 2);
 			return false;
 		}
