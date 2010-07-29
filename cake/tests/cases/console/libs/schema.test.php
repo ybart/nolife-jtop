@@ -226,8 +226,7 @@ class SchemaShellTest extends CakeTestCase {
 		$this->Shell->startup();
 		$this->Shell->dump();
 
-		$sql =& new File(TMP . 'tests' . DS . 'i18n.sql');
-		$contents = $sql->read();
+		$contents = file_get_contents(TMP . 'tests' . DS . 'i18n.sql');
 		$this->assertPattern('/DROP TABLE/', $contents);
 		$this->assertPattern('/CREATE TABLE `i18n`/', $contents);
 		$this->assertPattern('/id/', $contents);
@@ -237,7 +236,7 @@ class SchemaShellTest extends CakeTestCase {
 		$this->assertPattern('/foreign_key/', $contents);
 		$this->assertPattern('/content/', $contents);
 
-		$sql->delete();
+		unlink(TMP . 'tests' . DS . 'i18n.sql');
 	}
 
 /**
@@ -258,14 +257,13 @@ class SchemaShellTest extends CakeTestCase {
 		$this->Shell->expects($this->once())->method('_stop');
 		$this->Shell->dump();
 
-		$file =& new File(TMP . 'tests' . DS . 'dump_test.sql');
-		$contents = $file->read();
+		$contents  = file_get_contents(TMP . 'tests' . DS . 'dump_test.sql');
 
 		$this->assertPattern('/CREATE TABLE `acos`/', $contents);
 		$this->assertPattern('/id/', $contents);
 		$this->assertPattern('/model/', $contents);
 
-		$file->delete();
+		unlink(TMP . 'tests' . DS . 'dump_test.sql');
 		App::build();
 	}
 
@@ -353,8 +351,7 @@ class SchemaShellTest extends CakeTestCase {
 		$this->Shell->Schema->path = TMP . 'tests' . DS;
 
 		$this->Shell->generate();
-		$file = new File(TMP . 'tests' . DS . 'schema.php');
-		$contents = $file->read();
+		$contents = file_get_contents(TMP . 'tests' . DS . 'schema.php');
 
 		$this->assertPattern('/class TestPluginSchema/', $contents);
 		$this->assertPattern('/var \$posts/', $contents);
@@ -364,7 +361,7 @@ class SchemaShellTest extends CakeTestCase {
 		$this->assertNoPattern('/var \$users/', $contents);
 		$this->assertNoPattern('/var \$articles/', $contents);
 
-		$file->delete();
+		unlink(TMP . 'tests' . DS . 'schema.php');
 		App::build();
 	}
 

@@ -20,7 +20,6 @@
  * @since         CakePHP(tm) v 1.2.0.5550
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-App::import('Core', 'File', false);
 App::import('Model', 'CakeSchema', false);
 
 /**
@@ -109,13 +108,17 @@ class SchemaShell extends Shell {
  *
  */
 	public function view() {
-		$File = new File($this->Schema->path . DS . $this->params['file']);
-		if ($File->exists()) {
-			$this->out($File->read());
+		$filename = $this->Schema->path . DS . $this->params['file'];
+		$File = new SplFileObject($filename);
+		if ($File->isReadable()) {
+			$content = '';
+			while (!$File->eof()) {
+				$content .= $File->fgets();
+			}
+			$this->out($content);
 			$this->_stop();
 		} else {
-			$file = $this->Schema->path . DS . $this->params['file'];
-			$this->err(sprintf(__('Schema file (%s) could not be found.'), $file));
+			$this->err(sprintf(__('Schema file (%s) could not be found.'), $filename));
 			$this->_stop();
 		}
 	}
@@ -152,21 +155,18 @@ class SchemaShell extends Shell {
 		$content['file'] = $this->params['file'];
 
 		if ($snapshot === true) {
-			$Folder =& new Folder($this->Schema->path);
-			$result = $Folder->read();
-
 			$numToUse = false;
 			if (isset($this->params['s'])) {
 				$numToUse = $this->params['s'];
 			}
 
 			$count = 0;
-			if (!empty($result[1])) {
-				foreach ($result[1] as $file) {
-					if (preg_match('/schema(?:[_\d]*)?\.php$/', $file)) {
-						$count++;
-					}
+			$files = new DirectoryIterator($this->Schema->path);
+			while ($files->valid()) {
+				if ($files->isFile() && preg_match('/schema(?:[_\d]*)?\.php$/', $files->key())) {
+					$count++;
 				}
+				$files->next();
 			}
 
 			if ($numToUse !== false) {
@@ -219,13 +219,13 @@ class SchemaShell extends Shell {
 				$write .= '.sql';
 			}
 			if (strpos($write, DS) !== false) {
-				$File =& new File($write, true);
+				$File = new SplFileObject($write, 'w');
 			} else {
-				$File =& new File($this->Schema->path . DS . $write, true);
+				$File = new SplFileObject($this->Schema->path . DS . $write, 'w');
 			}
 
-			if ($File->write($contents)) {
-				$this->out(sprintf(__('SQL dump file created in %s'), $File->pwd()));
+			if ($File->fwrite($contents)) {
+				$this->out(sprintf(__('SQL dump file created in %s'), $File->getRealPath()));
 				$this->_stop();
 			} else {
 				$this->err(__('SQL dump could not be created'));
