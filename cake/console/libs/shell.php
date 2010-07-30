@@ -444,9 +444,9 @@ class Shell extends Object {
 			if (DIRECTORY_SEPARATOR == '\\') {
 				$lineBreak = "\r\n";
 			}
-			$data = strtr($data, array("\r\n" => $lineBreak, "\n" => $lineBreak, "\r" => $lineBreak));
+			$contents = strtr($contents, array("\r\n" => $lineBreak, "\n" => $lineBreak, "\r" => $lineBreak));
 
-			$File->fwrite($data);
+			$File->fwrite($contents);
 			$this->out(sprintf(__('Wrote `%s`'), $path));
 			return true;
 		} catch (Exception $e) {
