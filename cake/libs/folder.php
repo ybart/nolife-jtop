@@ -111,15 +111,6 @@ class Folder {
 	}
 
 /**
- * Return current path.
- *
- * @return string Current path
- */
-	public function pwd() {
-		return $this->path;
-	}
-
-/**
  * Change directory to $path.
  *
  * @param string $path Path to the directory to change to
@@ -141,7 +132,7 @@ class Folder {
  * @return array Files that match given pattern
  */
 	public function find($pattern = '.*', $sort = false) {
-		$files = new DirectoryIterator($this->pwd());
+		$files = new DirectoryIterator($this->path);
 		$result = array();
 		while ($files->valid()) {
 			if (($files->isFile() || $files->isLink()) && ($pattern === '.*' || preg_match('/^' . $pattern . '$/', $files->getBasename()))) {
@@ -163,10 +154,10 @@ class Folder {
  * @return array Files matching $pattern
  */
 	public function findRecursive($pattern = '.*', $sort = false) {
-		if (!$this->pwd()) {
+		if (!$this->path) {
 			return array();
 		}
-		$files = $this->tree($this->pwd(), true, 'file');
+		$files = $this->tree($this->path, true, 'file');
 		$result = array();
 		foreach ($files as $file) {
 			if ($pattern === '.*' || preg_match('/^' . $pattern . '$/', basename($file))) {
@@ -271,13 +262,13 @@ class Folder {
 /**
  * Returns true if the File is in given path.
  *
- * @param string $path The path to check that the current pwd() resides with in.
+ * @param string $path The path to check that the current path resides with in.
  * @param boolean $reverse
  * @return bool
  */
 	public function inPath($path = '', $reverse = false) {
 		$dir = Folder::slashTerm($path);
-		$current = Folder::slashTerm($this->pwd());
+		$current = Folder::slashTerm($this->path);
 
 		if (!$reverse) {
 			$return = preg_match('/^(.*)' . preg_quote($dir, '/') . '(.*)/', $current);
@@ -485,7 +476,7 @@ class Folder {
  */
 	public function delete($path = null) {
 		if (!$path) {
-			$path = $this->pwd();
+			$path = $this->path;
 		}
 		if (!$path) {
 			return null;
@@ -532,7 +523,7 @@ class Folder {
  * ### Options
  *
  * - `to` The directory to copy to.
- * - `from` The directory to copy from, this will cause a cd() to occur, changing the results of pwd().
+ * - `from` The directory to copy from, this will cause a cd() to occur, changing the results of path.
  * - `chmod` The mode to copy the files/directories with.
  * - `skip` Files/directories to skip.
  *
@@ -540,7 +531,7 @@ class Folder {
  * @return bool Success
  */
 	public function copy($options = array()) {
-		if (!$this->pwd()) {
+		if (!$this->path) {
 			return false;
 		}
 		$to = null;
@@ -617,7 +608,7 @@ class Folder {
  * ### Options
  *
  * - `to` The directory to copy to.
- * - `from` The directory to copy from, this will cause a cd() to occur, changing the results of pwd().
+ * - `from` The directory to copy from, this will cause a cd() to occur, changing the results of path.
  * - `chmod` The mode to copy the files/directories with.
  * - `skip` Files/directories to skip.
  *
