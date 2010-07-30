@@ -23,13 +23,6 @@ if (!defined('CAKE_CORE_INCLUDE_PATH')) {
 }
 
 /**
- * Ensure required files are included
- */
-if (!class_exists('File')) {
-	require LIBS . 'file.php';
-}
-
-/**
  * Make clean CSS
  *
  * @param unknown_type $path
@@ -57,8 +50,8 @@ if (!class_exists('File')) {
 		if (!is_dir(dirname($path))) {
 			mkdir(dirname($path));
 		}
-		$cache = new File($path);
-		return $cache->write($content);
+		$cache = new SplFileObject($path, 'w');
+		return $cache->fwrite($content);
 	}
 
 	if (preg_match('|\.\.|', $url) || !preg_match('|^ccss/(.+)$|i', $url, $regs)) {
