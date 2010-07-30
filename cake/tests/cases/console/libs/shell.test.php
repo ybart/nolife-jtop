@@ -449,9 +449,7 @@ class ShellTest extends CakeTestCase {
 		$path = TMP . 'shell_test';
 		$file = $path . DS . 'file1.php';
 
-		if (!is_dir($path)) {
-			mkdir($path);
-		}
+		$Folder = new Folder($path, true);
 
 		$this->Shell->interactive = false;
 
@@ -467,7 +465,7 @@ class ShellTest extends CakeTestCase {
 		$this->assertTrue(file_exists($file));
 		$this->assertEqual(file_get_contents($file), $contents);
 
-		$this->_removeDirectory($path);
+		$Folder->delete();
 	}
 
 /**
@@ -480,9 +478,7 @@ class ShellTest extends CakeTestCase {
 
 		$path = TMP . 'shell_test';
 		$file = $path . DS . 'file1.php';
-		if (!is_dir($path)) {
-			mkdir($path);
-		}
+		$Folder = new Folder($path, true);
 
 		$this->Shell->interactive = true;
 
@@ -517,7 +513,7 @@ class ShellTest extends CakeTestCase {
 		$this->assertTrue(file_exists($file));
 		$this->assertEquals($contents, file_get_contents($file));
 
-		$this->_removeDirectory($path);
+		$Folder->delete();
 	}
 
 /**
@@ -531,9 +527,7 @@ class ShellTest extends CakeTestCase {
 		$path = TMP . 'shell_test';
 		$file = $path . DS . 'file1.php';
 
-		if (!is_dir($path)) {
-			mkdir($path);
-		}
+		$Folder = new Folder($path, true);
 
 		$this->Shell->interactive = false;
 
@@ -549,7 +543,7 @@ class ShellTest extends CakeTestCase {
 		$this->assertTrue(file_exists($file));
 		$this->assertEqual(file_get_contents($file), $contents);
 
-		$this->_removeDirectory($path);
+		$Folder->delete();
 	}
 
 /**
@@ -563,9 +557,7 @@ class ShellTest extends CakeTestCase {
 		$path = TMP . 'shell_test';
 		$file = $path . DS . 'file1.php';
 
-		if (!is_dir($path)) {
-			mkdir($path);
-		}
+		$Folder = new Folder($path, true);
 
 		$this->Shell->interactive = true;
 
@@ -588,28 +580,7 @@ class ShellTest extends CakeTestCase {
 		$this->assertTrue(file_exists($file));
 		$this->assertEqual(file_get_contents($file), $contents);
 
-		$this->_removeDirectory($path);
+		$Folder->delete();
 	}
 
-/**
- * Remove recursive of files and folder
- *
- * @param string $path
- * @return void
- */
-	protected function _removeDirectory($path) {
-		if (!is_dir($path)) {
-			return;
-		}
-		$dir = new DirectoryIterator($path);
-		while ($dir->valid()) {
-			if ($dir->isFile() || $dir->isLink()) {
-				unlink($dir->getRealPath());
-			} elseif ($dir->isDir() && !$dir->isDot()) {
-				$this->_removeDirectory($dir->getRealPath());
-			}
-			$dir->next();
-		}
-		rmdir($path);
-	}
 }
