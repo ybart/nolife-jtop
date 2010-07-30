@@ -20,8 +20,6 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 App::import('Shell', 'Shell', false);
-App::import('Core', 'File');
-
 
 if (!defined('DISABLE_AUTO_DISPATCH')) {
 	define('DISABLE_AUTO_DISPATCH', true);
@@ -160,8 +158,7 @@ class ProjectTaskTest extends CakeTestCase {
 		$result = $this->Task->securitySalt($path);
 		$this->assertTrue($result);
 
-		$file = new File($path . 'config' . DS . 'core.php');
-		$contents = $file->read();
+		$contents = file_get_contents($path . 'config' . DS . 'core.php');
 		$this->assertNoPattern('/DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi/', $contents, 'Default Salt left behind. %s');
 	}
 
@@ -177,8 +174,7 @@ class ProjectTaskTest extends CakeTestCase {
 		$result = $this->Task->securityCipherSeed($path);
 		$this->assertTrue($result);
 
-		$file = new File($path . 'config' . DS . 'core.php');
-		$contents = $file->read();
+		$contents = file_get_contents($path . 'config' . DS . 'core.php');
 		$this->assertNoPattern('/76859309657453542496749683645/', $contents, 'Default CipherSeed left behind. %s');
 	}
 
@@ -193,12 +189,10 @@ class ProjectTaskTest extends CakeTestCase {
 		$path = $this->Task->path . 'bake_test_app' . DS;
 		$this->Task->corePath($path);
 
-		$file = new File($path . 'webroot' . DS . 'index.php');
-		$contents = $file->read();
+		$contents = file_get_contents($path . 'webroot' . DS . 'index.php');
 		$this->assertNoPattern('/define\(\'CAKE_CORE_INCLUDE_PATH\', \'ROOT/', $contents);
 
-		$file = new File($path . 'webroot' . DS . 'test.php');
-		$contents = $file->read();
+		$contents = file_get_contents($path . 'webroot' . DS . 'test.php');
 		$this->assertNoPattern('/define\(\'CAKE_CORE_INCLUDE_PATH\', \'ROOT/', $contents);
 	}
 
@@ -220,8 +214,7 @@ class ProjectTaskTest extends CakeTestCase {
 		$result = $this->Task->getPrefix();
 		$this->assertEqual($result, 'super_duper_admin_');
 
-		$file = new File($this->Task->configPath . 'core.php');
-		$file->delete();
+		@unlink($this->Task->configPath . 'core.php');
 	}
 
 /**
@@ -230,10 +223,8 @@ class ProjectTaskTest extends CakeTestCase {
  * @return void
  */
 	public function testCakeAdmin() {
-		$file = new File(CONFIGS . 'core.php');
-		$contents = $file->read();;
-		$file = new File(TMP . 'tests' . DS . 'core.php');
-		$file->write($contents);
+		$file = new SplFileObject(TMP . 'tests' . DS . 'core.php', 'w');
+		$file->fwrite(file_get_contents(CONFIGS . 'core.php'));
 
 		Configure::write('Routing.prefixes', null);
 		$this->Task->configPath = TMP . 'tests' . DS;
@@ -241,7 +232,8 @@ class ProjectTaskTest extends CakeTestCase {
 		$this->assertTrue($result);
 
 		$this->assertEqual(Configure::read('Routing.prefixes'), array('my_prefix'));
-		$file->delete();
+		unset($file);
+		unlink(TMP . 'tests' . DS . 'core.php');
 	}
 
 /**

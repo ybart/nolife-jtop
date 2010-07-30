@@ -202,15 +202,15 @@ class ProjectTask extends Shell {
  * @return boolean Success
  */
 	public function securitySalt($path) {
-		$File =& new File($path . 'config' . DS . 'core.php');
-		$contents = $File->read();
+		$contents = file_get_contents($path . 'config' . DS . 'core.php');
 		if (preg_match('/([\\t\\x20]*Configure::write\\(\\\'Security.salt\\\',[\\t\\x20\'A-z0-9]*\\);)/', $contents, $match)) {
 			if (!class_exists('Security')) {
 				require LIBS . 'security.php';
 			}
 			$string = Security::generateAuthKey();
 			$result = str_replace($match[0], "\t" . 'Configure::write(\'Security.salt\', \''.$string.'\');', $contents);
-			if ($File->write($result)) {
+			$File = new SplFileObject($path . 'config' . DS . 'core.php', 'w');
+			if ($File->fwrite($result)) {
 				return true;
 			}
 			return false;
@@ -225,14 +225,14 @@ class ProjectTask extends Shell {
 	 * @return boolean Success
 		 */
 		public function securityCipherSeed($path) {
-			$File =& new File($path . 'config' . DS . 'core.php');
-			$contents = $File->read();
+			$contents = file_get_contents($path . 'config' . DS . 'core.php');
 			if (preg_match('/([\\t\\x20]*Configure::write\\(\\\'Security.cipherSeed\\\',[\\t\\x20\'A-z0-9]*\\);)/', $contents, $match)) {
 				if (!class_exists('Security')) {
 					require LIBS . 'security.php';
 				}
 				$string = substr(bin2hex(Security::generateAuthKey()), 0, 30);
 				$result = str_replace($match[0], "\t" . 'Configure::write(\'Security.cipherSeed\', \''.$string.'\');', $contents);
+				$File = new SplFileObject($path . 'config' . DS . 'core.php', 'w');
 				if ($File->write($result)) {
 					return true;
 				}
@@ -249,11 +249,11 @@ class ProjectTask extends Shell {
  */
 	public function corePath($path) {
 		if (dirname($path) !== CAKE_CORE_INCLUDE_PATH) {
-			$File =& new File($path . 'webroot' . DS . 'index.php');
-			$contents = $File->read();
+			$contents = file_get_contents($path . 'webroot' . DS . 'index.php');
 			if (preg_match('/([\\t\\x20]*define\\(\\\'CAKE_CORE_INCLUDE_PATH\\\',[\\t\\x20\'A-z0-9]*\\);)/', $contents, $match)) {
 				$root = strpos(CAKE_CORE_INCLUDE_PATH, '/') === 0 ? " DS . '" : "'";
 				$result = str_replace($match[0], "\t\tdefine('CAKE_CORE_INCLUDE_PATH', " . $root . str_replace(DS, "' . DS . '", trim(CAKE_CORE_INCLUDE_PATH, DS)) . "');", $contents);
+				$File = new SplFileObject($path . 'webroot' . DS . 'index.php', 'w');
 				if (!$File->write($result)) {
 					return false;
 				}
@@ -261,10 +261,10 @@ class ProjectTask extends Shell {
 				return false;
 			}
 
-			$File =& new File($path . 'webroot' . DS . 'test.php');
-			$contents = $File->read();
+			$contents = file_get_contents($path . 'webroot' . DS . 'test.php');
 			if (preg_match('/([\\t\\x20]*define\\(\\\'CAKE_CORE_INCLUDE_PATH\\\',[\\t\\x20\'A-z0-9]*\\);)/', $contents, $match)) {
 				$result = str_replace($match[0], "\t\tdefine('CAKE_CORE_INCLUDE_PATH', " . $root . str_replace(DS, "' . DS . '", trim(CAKE_CORE_INCLUDE_PATH, DS)) . "');", $contents);
+				$File = new SplFileObject($path . 'webroot' . DS . 'test.php', 'w');
 				if (!$File->write($result)) {
 					return false;
 				}
@@ -283,10 +283,10 @@ class ProjectTask extends Shell {
  */
 	public function cakeAdmin($name) {
 		$path = (empty($this->configPath)) ? CONFIGS : $this->configPath;
-		$File =& new File($path . 'core.php');
-		$contents = $File->read();
+		$contents = file_get_contents($path . 'core.php');
 		if (preg_match('%([/\\t\\x20]*Configure::write\(\'Routing.prefixes\',[\\t\\x20\'a-z,\)\(]*\\);)%', $contents, $match)) {
 			$result = str_replace($match[0], "\t" . 'Configure::write(\'Routing.prefixes\', array(\''.$name.'\'));', $contents);
+			$File = new SplFileObject($path . 'core.php', 'w');
 			if ($File->write($result)) {
 				Configure::write('Routing.prefixes', array($name));
 				return true;
