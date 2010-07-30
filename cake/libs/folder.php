@@ -223,7 +223,7 @@ class Folder {
 			$mode = $this->mode;
 		}
 
-		if ($recursive === false && is_dir($path)) {
+		if ($recursive === false) {
 			if (@chmod($path, intval($mode, 8))) {
 				$this->__messages[] = sprintf(__('%s changed to %s'), $path, $mode);
 				return true;
