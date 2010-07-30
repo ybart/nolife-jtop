@@ -399,39 +399,37 @@ class Folder {
 		if (!$path) {
 			return null;
 		}
-		$path = rtrim($path, DS) . DS;
-		if (is_dir($path) === true) {
-			$normalFiles = glob($path . '*');
-			$hiddenFiles = glob($path . '\.?*');
+		if (!is_dir($path)) {
+			return true;
+		}
 
-			$normalFiles = $normalFiles ? $normalFiles : array();
-			$hiddenFiles = $hiddenFiles ? $hiddenFiles : array();
-
-			$files = array_merge($normalFiles, $hiddenFiles);
-			if (is_array($files)) {
-				foreach ($files as $file) {
-					if (preg_match('/(\.|\.\.)$/', $file)) {
-						continue;
-					}
-					if (is_file($file) === true) {
-						if (@unlink($file)) {
-							$this->__messages[] = sprintf(__('%s removed'), $file);
-						} else {
-							$this->__errors[] = sprintf(__('%s NOT removed'), $file);
-						}
-					} elseif (is_dir($file) === true && $this->delete($file) === false) {
-						return false;
-					}
+		$dirs = new RecursiveDirectoryIterator($path);
+		while ($dirs->valid()) {
+			if ($dirs->isDot()) {
+				$dirs->next();
+				continue;
+			}
+			if ($dirs->isFile() || $dirs->isLink()) {
+				if (@unlink($dirs->getPathname())) {
+					$this->__messages[] = sprintf(__('%s removed'), $dirs->getPathname());
+				} else {
+					$this->__errors[] = sprintf(__('%s NOT removed'), $dirs->getPathname());
+				}
+			} else {
+				if ($this->delete($dirs->getChildren()->getRealPath()) === false) {
+					return false;
 				}
 			}
-			$path = substr($path, 0, strlen($path) - 1);
-			if (rmdir($path) === false) {
-				$this->__errors[] = sprintf(__('%s NOT removed'), $path);
-				return false;
-			} else {
-				$this->__messages[] = sprintf(__('%s removed'), $path);
-			}
+			$dirs->next();
 		}
+
+		$path = rtrim($path, DS);
+		if (rmdir($path) === false) {
+			$this->__errors[] = sprintf(__('%s NOT removed'), $path);
+			return false;
+		}
+
+		$this->__messages[] = sprintf(__('%s removed'), $path);
 		return true;
 	}
 
