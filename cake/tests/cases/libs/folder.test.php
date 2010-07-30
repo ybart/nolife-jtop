@@ -39,10 +39,6 @@ class FolderTest extends CakeTestCase {
 		$result = $Folder->path;
 		$this->assertEqual($result, $path);
 
-		$result = Folder::addPathElement($path, 'test');
-		$expected = $path . DS . 'test';
-		$this->assertEqual($result, $expected);
-
 		$result = $Folder->cd(ROOT);
 		$expected = ROOT;
 		$this->assertEqual($result, $expected);
@@ -65,9 +61,6 @@ class FolderTest extends CakeTestCase {
 
 		$result = $Folder->path;
 		$this->assertEqual($result, $path);
-
-		$result = Folder::isSlashTerm($inside);
-		$this->assertTrue($result);
 
 		$result = $Folder->realpath('tests/');
 		$this->assertEqual($result, $path . DS .'tests' . DS);
@@ -262,19 +255,6 @@ class FolderTest extends CakeTestCase {
 	}
 
 /**
- * test Adding path elements to a path
- *
- * @return void
- */
-	function testAddPathElement() {
-		$result = Folder::addPathElement(DS . 'some' . DS . 'dir', 'another_path');
-		$this->assertEqual($result, DS . 'some' . DS . 'dir' . DS . 'another_path');
-
-		$result = Folder::addPathElement(DS . 'some' . DS . 'dir' . DS, 'another_path');
-		$this->assertEqual($result, DS . 'some' . DS . 'dir' . DS . 'another_path');
-	}
-
-/**
  * testFolderTree method
  *
  * @access public
@@ -335,103 +315,6 @@ class FolderTest extends CakeTestCase {
 			)
 		);
 		$this->assertIdentical($result, $expected);
-	}
-
-/**
- * testWindowsPath method
- *
- * @access public
- * @return void
- */
-	function testWindowsPath() {
-		$this->assertFalse(Folder::isWindowsPath('0:\\cake\\is\\awesome'));
-		$this->assertTrue(Folder::isWindowsPath('C:\\cake\\is\\awesome'));
-		$this->assertTrue(Folder::isWindowsPath('d:\\cake\\is\\awesome'));
-	}
-
-/**
- * testIsAbsolute method
- *
- * @access public
- * @return void
- */
-	function testIsAbsolute() {
-		$this->assertFalse(Folder::isAbsolute('path/to/file'));
-		$this->assertFalse(Folder::isAbsolute('cake/'));
-		$this->assertFalse(Folder::isAbsolute('path\\to\\file'));
-		$this->assertFalse(Folder::isAbsolute('0:\\path\\to\\file'));
-		$this->assertFalse(Folder::isAbsolute('\\path/to/file'));
-		$this->assertFalse(Folder::isAbsolute('\\path\\to\\file'));
-
-		$this->assertTrue(Folder::isAbsolute('/usr/local'));
-		$this->assertTrue(Folder::isAbsolute('//path/to/file'));
-		$this->assertTrue(Folder::isAbsolute('C:\\cake'));
-		$this->assertTrue(Folder::isAbsolute('C:\\path\\to\\file'));
-		$this->assertTrue(Folder::isAbsolute('d:\\path\\to\\file'));
-	}
-
-/**
- * testIsSlashTerm method
- *
- * @access public
- * @return void
- */
-	function testIsSlashTerm() {
-		$this->assertFalse(Folder::isSlashTerm('cake'));
-
-		$this->assertTrue(Folder::isSlashTerm('C:\\cake\\'));
-		$this->assertTrue(Folder::isSlashTerm('/usr/local/'));
-	}
-
-/**
- * testStatic method
- *
- * @access public
- * @return void
- */
-	function testSlashTerm() {
-		$result = Folder::slashTerm('/path/to/file');
-		$this->assertEqual($result, '/path/to/file/');
-	}
-
-/**
- * testNormalizePath method
- *
- * @access public
- * @return void
- */
-	function testNormalizePath() {
-		$path = '/path/to/file';
-		$result = Folder::normalizePath($path);
-		$this->assertEqual($result, '/');
-
-		$path = '\\path\\\to\\\file';
-		$result = Folder::normalizePath($path);
-		$this->assertEqual($result, '/');
-
-		$path = 'C:\\path\\to\\file';
-		$result = Folder::normalizePath($path);
-		$this->assertEqual($result, '\\');
-	}
-
-/**
- * correctSlashFor method
- *
- * @access public
- * @return void
- */
-	function testCorrectSlashFor() {
-		$path = '/path/to/file';
-		$result = Folder::correctSlashFor($path);
-		$this->assertEqual($result, '/');
-
-		$path = '\\path\\to\\file';
-		$result = Folder::correctSlashFor($path);
-		$this->assertEqual($result, '/');
-
-		$path = 'C:\\path\to\\file';
-		$result = Folder::correctSlashFor($path);
-		$this->assertEqual($result, '\\');
 	}
 
 /**

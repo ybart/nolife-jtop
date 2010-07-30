@@ -171,79 +171,13 @@ class Folder {
 	}
 
 /**
- * Returns true if given $path is a Windows path.
- *
- * @param string $path Path to check
- * @return boolean true if windows path, false otherwise
- * @access public
- * @static
- */
-	function isWindowsPath($path) {
-		return (bool)preg_match('/^[A-Z]:\\\\/i', $path);
-	}
-
-/**
  * Returns true if given $path is an absolute path.
  *
  * @param string $path Path to check
  * @return bool true if path is absolute.
- * @access public
- * @static
  */
-	function isAbsolute($path) {
+	public static function isAbsolute($path) {
 		return !empty($path) && ($path[0] === '/' || preg_match('/^[A-Z]:\\\\/i', $path));
-	}
-
-/**
- * Returns a correct set of slashes for given $path. (\\ for Windows paths and / for other paths.)
- *
- * @param string $path Path to check
- * @return string Set of slashes ("\\" or "/")
- * @access public
- * @static
- */
-	function normalizePath($path) {
-		return Folder::correctSlashFor($path);
-	}
-
-/**
- * Returns a correct set of slashes for given $path. (\\ for Windows paths and / for other paths.)
- *
- * @param string $path Path to check
- * @return string Set of slashes ("\\" or "/")
- * @access public
- * @static
- */
-	function correctSlashFor($path) {
-		return (Folder::isWindowsPath($path)) ? '\\' : '/';
-	}
-
-/**
- * Returns $path with added terminating slash (corrected for Windows or other OS).
- *
- * @param string $path Path to check
- * @return string Path with ending slash
- * @access public
- * @static
- */
-	function slashTerm($path) {
-		if (Folder::isSlashTerm($path)) {
-			return $path;
-		}
-		return $path . Folder::correctSlashFor($path);
-	}
-
-/**
- * Returns $path with $element added, with correct slash in-between.
- *
- * @param string $path Path
- * @param string $element Element to and at end of path
- * @return string Combined path
- * @access public
- * @static
- */
-	function addPathElement($path, $element) {
-		return rtrim($path, DS) . DS . $element;
 	}
 
 /**
@@ -253,10 +187,7 @@ class Folder {
  * @return bool
  */
 	public function inCakePath($path = '') {
-		$dir = substr(Folder::slashTerm(ROOT), 0, -1);
-		$newdir = $dir . $path;
-
-		return $this->inPath($newdir);
+		return $this->inPath(rtrim(ROOT, DS) . $path);
 	}
 
 /**
@@ -267,8 +198,8 @@ class Folder {
  * @return bool
  */
 	public function inPath($path = '', $reverse = false) {
-		$dir = Folder::slashTerm($path);
-		$current = Folder::slashTerm($this->path);
+		$dir = rtrim($path, DS) . DS;
+		$current = rtrim($this->path, DS) . DS;
 
 		if (!$reverse) {
 			$return = preg_match('/^(.*)' . preg_quote($dir, '/') . '(.*)/', $current);
@@ -440,7 +371,7 @@ class Folder {
  */
 	public function dirsize() {
 		$size = 0;
-		$directory = Folder::slashTerm($this->path);
+		$directory = rtrim($this->path, DS) . DS;
 		$stack = array($directory);
 		$count = count($stack);
 		for ($i = 0, $j = $count; $i < $j; ++$i) {
@@ -456,7 +387,7 @@ class Folder {
 						$add = $stack[$i] . $entry;
 
 						if (is_dir($stack[$i] . $entry)) {
-							$add = Folder::slashTerm($add);
+							$add = rtrim($add, DS) . DS;
 						}
 						$stack[] = $add;
 					}
@@ -481,7 +412,7 @@ class Folder {
 		if (!$path) {
 			return null;
 		}
-		$path = Folder::slashTerm($path);
+		$path = rtrim($path, DS) . DS;
 		if (is_dir($path) === true) {
 			$normalFiles = glob($path . '*');
 			$hiddenFiles = glob($path . '\.?*');
@@ -563,8 +494,8 @@ class Folder {
 		if ($handle = @opendir($fromDir)) {
 			while (false !== ($item = readdir($handle))) {
 				if (!in_array($item, $exceptions)) {
-					$from = Folder::addPathElement($fromDir, $item);
-					$to = Folder::addPathElement($toDir, $item);
+					$from = rtrim($fromDir, DS) . DS . $item;
+					$to = rtrim($toDir, DS) . DS . $item;
 					if (is_file($from)) {
 						if (copy($from, $to)) {
 							chmod($to, intval($mode, 8));
@@ -662,7 +593,7 @@ class Folder {
 		$path = str_replace('/', DS, trim($path));
 		if (strpos($path, '..') === false) {
 			if (!Folder::isAbsolute($path)) {
-				$path = Folder::addPathElement($this->path, $path);
+				$path = rtrim($this->path, DS) . DS . $path;
 			}
 			return $path;
 		}
@@ -689,19 +620,7 @@ class Folder {
 		}
 		$newpath .= implode(DS, $newparts);
 
-		return Folder::slashTerm($newpath);
+		return rtrim($newpath, DS) . DS;
 	}
 
-/**
- * Returns true if given $path ends in a slash (i.e. is slash-terminated).
- *
- * @param string $path Path to check
- * @return boolean true if path ends with slash, false otherwise
- * @access public
- * @static
- */
-	function isSlashTerm($path) {
-		$lastChar = $path[strlen($path) - 1];
-		return $lastChar === '/' || $lastChar === '\\';
-	}
 }

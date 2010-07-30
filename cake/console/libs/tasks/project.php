@@ -76,7 +76,7 @@ class ProjectTask extends Shell {
 		}
 
 		if ($this->bake($project)) {
-			$path = Folder::slashTerm($project);
+			$path = rtrim($project, DS) . DS;
 			if ($this->createHome($path)) {
 				$this->out(__('Welcome page created'));
 			} else {
