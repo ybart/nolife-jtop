@@ -40,7 +40,6 @@ class AllLibsTest extends PHPUnit_Framework_TestSuite {
 		$suite->addTestFile(CORE_TEST_CASES . DS . 'libs' . DS . 'cake_session.test.php');
 		$suite->addTestFile(CORE_TEST_CASES . DS . 'libs' . DS . 'debugger.test.php');
 		$suite->addTestFile(CORE_TEST_CASES . DS . 'libs' . DS . 'error.test.php');
-		$suite->addTestFile(CORE_TEST_CASES . DS . 'libs' . DS . 'file.test.php');
 		$suite->addTestFile(CORE_TEST_CASES . DS . 'libs' . DS . 'folder.test.php');
 		$suite->addTestFile(CORE_TEST_CASES . DS . 'libs' . DS . 'log' . DS . 'file_log.test.php');
 		$suite->addTestFile(CORE_TEST_CASES . DS . 'libs' . DS . 'cake_log.test.php');
