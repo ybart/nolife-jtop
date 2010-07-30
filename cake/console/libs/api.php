@@ -19,7 +19,6 @@
  * @since         CakePHP(tm) v 1.2.0.5012
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-App::import('Core', 'File');
 
 /**
  * API shell to show method signatures of CakePHP core classes.
@@ -176,7 +175,7 @@ class ApiShell extends Shell {
  * Parse a given class (located on given file) and get public methods and their
  * signatures.
  *
- * @param object $File File object
+ * @param string $path File path
  * @param string $class Class name
  * @return array Methods and signatures indexed by method name
  * @access private

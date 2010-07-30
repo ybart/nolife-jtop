@@ -256,7 +256,6 @@ class ShellDispatcher {
 			CORE_PATH . 'cake' . DS . 'libs' . DS . 'object.php',
 			CORE_PATH . 'cake' . DS . 'libs' . DS . 'inflector.php',
 			CORE_PATH . 'cake' . DS . 'libs' . DS . 'configure.php',
-			CORE_PATH . 'cake' . DS . 'libs' . DS . 'file.php',
 			CORE_PATH . 'cake' . DS . 'libs' . DS . 'cache.php',
 			CORE_PATH . 'cake' . DS . 'libs' . DS . 'string.php',
 			CORE_PATH . 'cake' . DS . 'libs' . DS . 'class_registry.php',
