@@ -457,8 +457,8 @@ class Folder {
 		}
 		$options = array_merge(array('to' => $to, 'from' => $this->path, 'mode' => $this->mode, 'skip' => array()), $options);
 
-		$fromDir = $options['from'];
-		$toDir = $options['to'];
+		$fromDir = rtrim($options['from'], DS);
+		$toDir = rtrim($options['to'], DS);
 		$mode = $options['mode'];
 
 		if (!$this->cd($fromDir)) {
@@ -476,42 +476,37 @@ class Folder {
 		}
 
 		$exceptions = array_merge(array('.', '..', '.svn'), $options['skip']);
-		if ($handle = @opendir($fromDir)) {
-			while (false !== ($item = readdir($handle))) {
-				if (!in_array($item, $exceptions)) {
-					$from = rtrim($fromDir, DS) . DS . $item;
-					$to = rtrim($toDir, DS) . DS . $item;
-					if (is_file($from)) {
-						if (copy($from, $to)) {
-							chmod($to, intval($mode, 8));
-							touch($to, filemtime($from));
-							$this->__messages[] = sprintf(__('%s copied to %s'), $from, $to);
-						} else {
-							$this->__errors[] = sprintf(__('%s NOT copied to %s'), $from, $to);
-						}
-					}
-
-					if (is_dir($from) && !file_exists($to)) {
-						$old = umask(0);
-						if (mkdir($to, $mode)) {
-							umask($old);
-							$old = umask(0);
-							chmod($to, $mode);
-							umask($old);
-							$this->__messages[] = sprintf(__('%s created'), $to);
-							$options = array_merge($options, array('to'=> $to, 'from'=> $from));
-							$this->copy($options);
-						} else {
-							$this->__errors[] = sprintf(__('%s not created'), $to);
-						}
-					}
+		$dirs = new RecursiveDirectoryIterator($fromDir);
+		while ($dirs->valid()) {
+			if ($dirs->isDot() || in_array($dirs->getBasename(), $exceptions)) {
+				$dirs->next();
+				continue;
+			}
+			$to = $toDir . DS . $dirs->getBasename();
+			if ($dirs->isFile() || $dirs->isLink()) {
+				if (copy($dirs->getRealPath(), $to)) {
+					chmod($to, intval($mode, 8));
+					touch($to, $dirs->getMTime());
+					$this->__messages[] = sprintf(__('%s copied to %s'), $dirs->getRealPath(), $to);
+				} else {
+					$this->__errors[] = sprintf(__('%s NOT copied to %s'), $dirs->getRealPath(), $to);
+				}
+			} elseif ($dirs->isDir() && !file_exists($to)) {
+				$old = umask(0);
+				if (mkdir($to, $mode)) {
+					umask($old);
+					$old = umask(0);
+					chmod($to, $mode);
+					umask($old);
+					$this->__messages[] = sprintf(__('%s created'), $to);
+					$options = array_merge($options, array('to' => $to, 'from' => $dirs->getRealPath()));
+					$this->copy($options);
+				} else {
+					$this->__errors[] = sprintf(__('%s not created'), $to);
 				}
 			}
-			closedir($handle);
-		} else {
-			return false;
+			$dirs->next();
 		}
-
 		if (!empty($this->__errors)) {
 			return false;
 		}
