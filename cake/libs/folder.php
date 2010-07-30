@@ -134,62 +134,25 @@ class Folder {
 	}
 
 /**
- * Returns an array of the contents of the current directory.
- * The returned array holds two arrays: One of directories and one of files.
- *
- * @param boolean $sort Whether you want the results sorted, set this and the sort property
- *   to false to get unsorted results.
- * @param mixed $exceptions Either an array or boolean true will not grab dot files
- * @param boolean $fullPath True returns the full path
- * @return mixed Contents of current directory as an array, an empty array on failure
- */
-	public function read($sort = true, $exceptions = false, $fullPath = false) {
-		$dirs = $files = array();
-
-		if (!$this->pwd()) {
-			return array($dirs, $files);
-		}
-		if (is_array($exceptions)) {
-			$exceptions = array_flip($exceptions);
-		}
-		$skipHidden = isset($exceptions['.']) || $exceptions === true;
-
-		if (false === ($dir = @opendir($this->path))) {
-			return array($dirs, $files);
-		}
-
-		while (false !== ($item = readdir($dir))) {
-			if ($item === '.' || $item === '..' || ($skipHidden && $item[0] === '.') || isset($exceptions[$item])) {
-				continue;
-			}
-
-			$path = Folder::addPathElement($this->path, $item);
-			if (is_dir($path)) {
-				$dirs[] = $fullPath ? $path : $item;
-			} else {
-				$files[] = $fullPath ? $path : $item;
-			}
-		}
-
-		if ($sort || $this->sort) {
-			sort($dirs);
-			sort($files);
-		}
-
-		closedir($dir);
-		return array($dirs, $files);
-	}
-
-/**
  * Returns an array of all matching files in current directory.
  *
  * @param string $pattern Preg_match pattern (Defaults to: .*)
  * @param boolean $sort Whether results should be sorted.
  * @return array Files that match given pattern
  */
-	public function find($regexpPattern = '.*', $sort = false) {
-		list($dirs, $files) = $this->read($sort);
-		return array_values(preg_grep('/^' . $regexpPattern . '$/i', $files)); ;
+	public function find($pattern = '.*', $sort = false) {
+		$files = new DirectoryIterator($this->pwd());
+		$result = array();
+		while ($files->valid()) {
+			if (($files->isFile() || $files->isLink()) && ($pattern === '.*' || preg_match('/^' . $pattern . '$/', $files->getBasename()))) {
+				$result[] = $files->getBasename();
+			}
+			$files->next();
+		}
+		if ($sort) {
+			sort($result);
+		}
+		return $result;
 	}
 
 /**
@@ -203,36 +166,17 @@ class Folder {
 		if (!$this->pwd()) {
 			return array();
 		}
-		$startsOn = $this->path;
-		$out = $this->_findRecursive($pattern, $sort);
-		$this->cd($startsOn);
-		return $out;
-	}
-
-/**
- * Private helper function for findRecursive.
- *
- * @param string $pattern Pattern to match against
- * @param boolean $sort Whether results should be sorted.
- * @return array Files matching pattern
- * @access private
- */
-	function _findRecursive($pattern, $sort = false) {
-		list($dirs, $files) = $this->read($sort);
-		$found = array();
-
+		$files = $this->tree($this->pwd(), true, 'file');
+		$result = array();
 		foreach ($files as $file) {
-			if (preg_match('/^' . $pattern . '$/i', $file)) {
-				$found[] = Folder::addPathElement($this->path, $file);
+			if ($pattern === '.*' || preg_match('/^' . $pattern . '$/', basename($file))) {
+				$result[] = $file;
 			}
 		}
-		$start = $this->path;
-
-		foreach ($dirs as $dir) {
-			$this->cd(Folder::addPathElement($start, $dir));
-			$found = array_merge($found, $this->findRecursive($pattern, $sort));
+		if ($sort) {
+			sort($result);
 		}
-		return $found;
+		return $result;
 	}
 
 /**
@@ -403,7 +347,6 @@ class Folder {
  * @return mixed array of nested directories and files in each directory
  */
 	public function tree($path, $exceptions = true, $type = null) {
-		$original = $this->path;
 		$path = rtrim($path, DS);
 		if (!$this->cd($path)) {
 			if ($type === null) {
@@ -411,42 +354,51 @@ class Folder {
 			}
 			return array();
 		}
-		$this->__files = array();
-		$this->__directories = array($this->realpath($path));
-		$directories = array();
 
 		if ($exceptions === false) {
 			$exceptions = true;
-		}
-		while (!empty($this->__directories)) {
-			$dir = array_pop($this->__directories);
-			$this->__tree($dir, $exceptions);
-			$directories[] = $dir;
+		} elseif (is_array($exceptions)) {
+			$exceptions = array_flip($exceptions);
 		}
 
+		$this->__files = array();
+		$this->__directories = array($path);
+
+		$this->__tree(new RecursiveDirectoryIterator($path), $exceptions);
+
 		if ($type === null) {
-			return array($directories, $this->__files);
+			return array($this->__directories, $this->__files);
 		}
 		if ($type === 'dir') {
-			return $directories;
+			return $this->__directories;
 		}
-		$this->cd($original);
 
 		return $this->__files;
 	}
 
 /**
- * Private method to list directories and files in each directory
+ * Private method to get subdirectories
  *
- * @param string $path The Path to read.
+ * @param object $Folder RecursiveDiretoryIterator
  * @param mixed $exceptions Array of files to exclude from the read that will be performed.
- * @access private
+ * @return void
  */
-	function __tree($path, $exceptions) {
-		$this->path = $path;
-		list($dirs, $files) = $this->read(false, $exceptions, true);
-		$this->__directories = array_merge($this->__directories, $dirs);
-		$this->__files = array_merge($this->__files, $files);
+	function __tree($Folder, $exceptions) {
+		$skipHidden = isset($exceptions['.']) || $exceptions === true;
+		while ($Folder->valid()) {
+			$basename = $Folder->getBasename();
+			if ($Folder->isDot() || ($skipHidden && $basename[0] === '.') || isset($exceptions[$basename])) {
+				$Folder->next();
+				continue;
+			}
+			if ($Folder->isFile() || $Folder->isLink()) {
+				$this->__files[] = $Folder->getPathname();
+			} elseif ($Folder->isDir()) {
+				$this->__directories[] = $Folder->getPathname();
+				$this->__tree($Folder->getChildren(), $exceptions);
+			}
+			$Folder->next();
+		}
 	}
 
 /**

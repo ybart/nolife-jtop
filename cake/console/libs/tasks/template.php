@@ -57,9 +57,7 @@ class TemplateTask extends Shell {
 		$separator = DS === '/' ? '/' : '\\\\';
 		$core = preg_replace('#libs' . $separator . '$#', '', $core);
 		$paths[] = $core;
-		$Folder =& new Folder($core . 'templates' . DS . 'default');
-		$contents = $Folder->read();
-		$themeFolders = $contents[0];
+		$themeFolders = $this->_findDirectories($core . 'templates' . DS . 'default');
 
 		$plugins = App::objects('plugin');
 		foreach ($plugins as $plugin) {
@@ -73,17 +71,13 @@ class TemplateTask extends Shell {
 
 		$themes = array();
 		foreach ($paths as $path) {
-			$Folder =& new Folder($path . 'templates', false);
-			$contents = $Folder->read();
-			$subDirs = $contents[0];
+			$subDirs = $this->_findDirectories($path . 'templates');
 			foreach ($subDirs as $dir) {
 				if (empty($dir) || preg_match('@^skel$|_skel$@', $dir)) {
 					continue;
 				}
-				$Folder =& new Folder($path . 'templates' . DS . $dir);
-				$contents = $Folder->read();
-				$subDirs = $contents[0];
-				if (array_intersect($contents[0], $themeFolders)) {
+				$subDirs = $this->_findDirectories($path . 'templates' . DS . $dir);
+				if (array_intersect($subDirs, $themeFolders)) {
 					$templateDir = $path . 'templates' . DS . $dir . DS;
 					$themes[$dir] = $templateDir;
 				}
@@ -209,4 +203,23 @@ class TemplateTask extends Shell {
 		$this->err(sprintf(__('Could not find template for %s'), $filename));
 		return false;
 	}
+
+/**
+ * Find directories
+ *
+ * @param string $path
+ * @return array
+ */
+	public function _findDirectories($path) {
+		$dirs = new DirectoryIterator($path);
+		$result = array();
+		while ($dirs->valid()) {
+			if ($dirs->isDir() && !$dirs->isDot()) {
+				$result[] = $dirs->getBasename();
+			}
+			$dirs->next();
+		}
+		return $result;
+	}
+
 }

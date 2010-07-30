@@ -1189,18 +1189,23 @@ class App {
  * @return array  List of directories or files in directory
  */
 	private static function __list($path, $suffix = false, $extension = false) {
-		if (!class_exists('Folder')) {
-			require LIBS . 'folder.php';
+		if (!is_dir($path)) {
+			return array();
 		}
 		$items = array();
-		$Folder = new Folder($path);
-		$contents = $Folder->read(false, true);
+		$Folder = new DirectoryIterator($path);
 
-		if (is_array($contents)) {
-			if (!$suffix) {
-				return $contents[0];
-			} else {
-				foreach ($contents[1] as $item) {
+		if (!$suffix) {
+			while ($Folder->valid()) {
+				if ($Folder->isDir() && !$Folder->isDot() && substr($Folder->getBasename(), 0, 1) !== '.') {
+					$items[] = $Folder->getPath();
+				}
+				$Folder->next();
+			}
+		} else {
+			while ($Folder->valid()) {
+				if ($Folder->isFile() || $Folder->isLink()) {
+					$item = $Folder->getPathname();
 					if (substr($item, - strlen($suffix)) === $suffix) {
 						if ($extension) {
 							$items[] = $item;

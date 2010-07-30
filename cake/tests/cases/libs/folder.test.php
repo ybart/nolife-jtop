@@ -257,14 +257,6 @@ class FolderTest extends CakeTestCase {
 		$new = TMP . '0';
 		$this->assertTrue($Folder->create($new));
 
-		$result = $Folder->read(true, true);
-		$expected = array('0', 'cache', 'logs', 'sessions', 'tests');
-		$this->assertEqual($expected, $result[0]);
-
-		$result = $Folder->read(true, array('.', '..', 'logs', '.svn'));
-		$expected = array('0', 'cache', 'sessions', 'tests');
-		$this->assertEqual($expected, $result[0]);
-
 		$result = $Folder->delete($new);
 		$this->assertTrue($result);
 	}
@@ -280,24 +272,6 @@ class FolderTest extends CakeTestCase {
 
 		$result = Folder::addPathElement(DS . 'some' . DS . 'dir' . DS, 'another_path');
 		$this->assertEqual($result, DS . 'some' . DS . 'dir' . DS . 'another_path');
-	}
-/**
- * testFolderRead method
- *
- * @access public
- * @return void
- */
-	function testFolderRead() {
-		$Folder = new Folder(TMP);
-
-		$expected = array('cache', 'logs', 'sessions', 'tests');
-		$result = $Folder->read(true, true);
-		$this->assertEqual($result[0], $expected);
-
-		$Folder->path = TMP . DS . 'non-existent';
-		$expected = array(array(), array());
-		$result = $Folder->read(true, true);
-		$this->assertEqual($result, $expected);
 	}
 
 /**
@@ -348,6 +322,19 @@ class FolderTest extends CakeTestCase {
 		$result = $Folder->tree(TEST_CAKE_CORE_INCLUDE_PATH . 'config', false, 'files');
 		$this->assertIdentical(array_diff($expected[1], $result), array());
 		$this->assertIdentical(array_diff($result, $expected[1]), array());
+
+		$result = $Folder->tree(TEST_CAKE_CORE_INCLUDE_PATH . 'config', array('casefolding'));
+		$expected = array(
+			array(
+				TEST_CAKE_CORE_INCLUDE_PATH . 'config',
+				TEST_CAKE_CORE_INCLUDE_PATH . 'config' . DS . 'unicode'
+			),
+			array(
+				TEST_CAKE_CORE_INCLUDE_PATH . 'config' . DS . 'config.php',
+				TEST_CAKE_CORE_INCLUDE_PATH . 'config' . DS . 'paths.php'
+			)
+		);
+		$this->assertIdentical($result, $expected);
 	}
 
 /**
