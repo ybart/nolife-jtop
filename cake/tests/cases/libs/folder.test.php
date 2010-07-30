@@ -17,7 +17,6 @@
  * @since         CakePHP(tm) v 1.2.0.4206
  * @license       http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
-App::import('Core', 'File');
 
 /**
  * FolderTest class
@@ -229,11 +228,6 @@ class FolderTest extends CakeTestCase {
 		$this->assertTrue($Folder->create($new));
 		$this->assertTrue($Folder->create($new . DS . 'test1'));
 		$this->assertTrue($Folder->create($new . DS . 'test2'));
-
-		$filePath = $new . DS . 'test1.php';
-		$File = new File($filePath);
-		$this->assertTrue($File->create());
-		$copy = TMP . 'test_folder_copy';
 
 		$this->assertTrue($Folder->chmod($new, 0777, true));
 		$this->assertEqual($File->perms(), '0777');
@@ -514,7 +508,7 @@ class FolderTest extends CakeTestCase {
 		$this->assertIdentical($result, $expected);
 
 		$Folder->cd(TMP);
-		$file = new File($Folder->pwd() . DS . 'paths.php', true);
+		touch($Folder->pwd() . DS . 'paths.php');
 		$Folder->create($Folder->pwd() . DS . 'testme');
 		$Folder->cd('testme');
 		$result = $Folder->find('paths\.php');
@@ -528,7 +522,7 @@ class FolderTest extends CakeTestCase {
 
 		$Folder->cd(TMP);
 		$Folder->delete($Folder->pwd() . DS . 'testme');
-		$file->delete();
+		unlink($Folder->pwd() . DS . 'paths.php');
 	}
 
 /**
@@ -558,16 +552,14 @@ class FolderTest extends CakeTestCase {
 		$Folder->cd(TMP);
 		$Folder->create($Folder->pwd() . DS . 'testme');
 		$Folder->cd('testme');
-		$File = new File($Folder->pwd() . DS . 'paths.php');
-		$File->create();
+		touch($Folder->pwd() . DS . 'paths.php');
 		$Folder->cd(TMP . 'sessions');
 		$result = $Folder->findRecursive('paths\.php');
 		$expected = array();
 		$this->assertIdentical($result, $expected);
 
 		$Folder->cd(TMP . 'testme');
-		$File = new File($Folder->pwd() . DS . 'my.php');
-		$File->create();
+		touch($Folder->pwd() . DS . 'my.php');
 		$Folder->cd($Folder->pwd() . '/../..');
 
 		$result = $Folder->findRecursive('(paths|my)\.php');
@@ -588,7 +580,6 @@ class FolderTest extends CakeTestCase {
 		$Folder->cd(TEST_CAKE_CORE_INCLUDE_PATH . 'config');
 		$Folder->cd(TMP);
 		$Folder->delete($Folder->pwd() . DS . 'testme');
-		$File->delete();
 	}
 
 /**
@@ -614,10 +605,7 @@ class FolderTest extends CakeTestCase {
 		$Folder = new Folder(TMP . 'config_non_existant', true);
 		$this->assertEqual($Folder->dirSize(), 0);
 
-		$File = new File($Folder->pwd() . DS . 'my.php', true, 0777);
-		$File->create();
-		$File->write('something here');
-		$File->close();
+		file_put_contents($Folder->pwd() . DS . 'my.php', 'something here');
 		$this->assertEqual($Folder->dirSize(), 14);
 
 		$Folder->cd(TMP);
