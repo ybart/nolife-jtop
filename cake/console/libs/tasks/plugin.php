@@ -159,7 +159,7 @@ class PluginTask extends Shell {
 			foreach ($directories as $directory) {
 				$dirPath = $this->path . $pluginPath . DS . $directory;
 				$Folder->create($dirPath);
-				$File =& new File($dirPath . DS . 'empty', true);
+				$File = new SplFileObject($dirPath . DS . 'empty', 'a+');
 			}
 
 			if (strtolower($verbose) == 'y') {
