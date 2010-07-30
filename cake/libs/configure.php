@@ -1198,14 +1198,14 @@ class App {
 		if (!$suffix) {
 			while ($Folder->valid()) {
 				if ($Folder->isDir() && !$Folder->isDot() && substr($Folder->getBasename(), 0, 1) !== '.') {
-					$items[] = $Folder->getPath();
+					$items[] = $Folder->getBasename();
 				}
 				$Folder->next();
 			}
 		} else {
 			while ($Folder->valid()) {
 				if ($Folder->isFile() || $Folder->isLink()) {
-					$item = $Folder->getPathname();
+					$item = $Folder->getBasename();
 					if (substr($item, - strlen($suffix)) === $suffix) {
 						if ($extension) {
 							$items[] = $item;
