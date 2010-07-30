@@ -238,10 +238,7 @@ class Folder {
 
 			foreach ($paths as $type) {
 				foreach ($type as $key => $fullpath) {
-					$check = explode(DS, $fullpath);
-					$count = count($check);
-
-					if (in_array($check[$count - 1], $exceptions)) {
+					if (in_array(basename($fullpath), $exceptions)) {
 						continue;
 					}
 
