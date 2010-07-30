@@ -364,37 +364,24 @@ class Folder {
 	}
 
 /**
- * Returns the size in bytes of this Folder and its contents.
+ * Returns the size in bytes of path and its contents.
  *
  * @param string $directory Path to directory
  * @return int size in bytes of current folder
  */
-	public function dirsize() {
+	public function dirSize($directory = null) {
+		if (empty($directory)) {
+			$directory = $this->path;
+		}
 		$size = 0;
-		$directory = rtrim($this->path, DS) . DS;
-		$stack = array($directory);
-		$count = count($stack);
-		for ($i = 0, $j = $count; $i < $j; ++$i) {
-			if (is_file($stack[$i])) {
-				$size += filesize($stack[$i]);
-			} elseif (is_dir($stack[$i])) {
-				$dir = dir($stack[$i]);
-				if ($dir) {
-					while (false !== ($entry = $dir->read())) {
-						if ($entry === '.' || $entry === '..') {
-							continue;
-						}
-						$add = $stack[$i] . $entry;
-
-						if (is_dir($stack[$i] . $entry)) {
-							$add = rtrim($add, DS) . DS;
-						}
-						$stack[] = $add;
-					}
-					$dir->close();
-				}
+		$dirs = new RecursiveDirectoryIterator($directory);
+		while ($dirs->valid()) {
+			if ($dirs->isFile()) {
+				$size += $dirs->getSize();
+			} elseif ($dirs->isDir() && !$dirs->isDot()) {
+				$size += $this->dirSize($dirs->getChildren()->getRealPath());
 			}
-			$j = count($stack);
+			$dirs->next();
 		}
 		return $size;
 	}
