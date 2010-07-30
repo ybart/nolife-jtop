@@ -344,7 +344,7 @@ class Folder {
 			$this->__errors[] = sprintf(__('%s is a file'), $pathname);
 			return false;
 		}
-		$nextPathname = substr($pathname, 0, strrpos($pathname, DS));
+		$nextPathname = dirname($pathname);
 
 		if ($this->create($nextPathname, $mode)) {
 			if (!file_exists($pathname)) {
@@ -494,8 +494,6 @@ class Folder {
 			} elseif ($dirs->isDir() && !file_exists($to)) {
 				$old = umask(0);
 				if (mkdir($to, $mode)) {
-					umask($old);
-					$old = umask(0);
 					chmod($to, $mode);
 					umask($old);
 					$this->__messages[] = sprintf(__('%s created'), $to);
