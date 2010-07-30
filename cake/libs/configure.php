@@ -1214,6 +1214,7 @@ class App {
 						}
 					}
 				}
+				$Folder->next();
 			}
 		}
 		return $items;
