@@ -341,10 +341,15 @@ class HtmlHelperTest extends CakeTestCase {
 		if ($this->skipIf(!is_writable(WWW_ROOT . 'theme'), 'Cannot write to webroot/theme')) {
 			return;
 		}
-		App::import('Core', 'File');
 
+		if (!is_dir(WWW_ROOT . 'theme' . DS . 'test_theme' . DS . 'img')) {
+			if (!is_dir(WWW_ROOT . 'theme' . DS . 'test_theme')) {
+				mkdir(WWW_ROOT . 'theme' . DS . 'test_theme');
+			}
+			mkdir (WWW_ROOT . 'theme' . DS . 'test_theme' . DS . 'img');
+		}
 		$testfile = WWW_ROOT . 'theme' . DS . 'test_theme' . DS . 'img' . DS . '__cake_test_image.gif';
-		$file =& new File($testfile, true);
+		new SplFileObject($testfile, 'a+');
 
 		App::build(array(
 			'views' => array(TEST_CAKE_CORE_INCLUDE_PATH . 'tests' . DS . 'test_app' . DS . 'views'. DS)
