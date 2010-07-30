@@ -109,12 +109,8 @@ class SchemaShell extends Shell {
  */
 	public function view() {
 		$filename = $this->Schema->path . DS . $this->params['file'];
-		$File = new SplFileObject($filename);
-		if ($File->isReadable()) {
-			$content = '';
-			while (!$File->eof()) {
-				$content .= $File->fgets();
-			}
+		if (is_readable($filename)) {
+			$content = file_get_contents($filename);
 			$this->out($content);
 			$this->_stop();
 		} else {
