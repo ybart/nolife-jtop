@@ -70,7 +70,7 @@ class ExtractTaskTest extends CakeTestCase {
  */
 	public function testExecute() {
 		$path = TMP . 'tests' . DS . 'extract_task_test';
-		$Folder = new Folder($path, true);
+		new Folder($path . DS . 'locale', true);
 
 		$this->Task->interactive = false;
 
@@ -145,6 +145,7 @@ class ExtractTaskTest extends CakeTestCase {
 		$pattern = '/msgid "You deleted %d message \(domain\)."\nmsgid_plural "You deleted %d messages \(domain\)."/';
 		$this->assertPattern($pattern, $result);
 
+		$Folder = new Folder($path);
 		$Folder->delete();
 	}
 
@@ -155,7 +156,7 @@ class ExtractTaskTest extends CakeTestCase {
  */
 	function testExtractMultiplePaths() {
 		$path = TMP . 'tests' . DS . 'extract_task_test';
-		$Folder = new Folder($path, true);
+		new Folder($path . DS . 'locale', true);
 
 		$this->Task->interactive = false;
 
