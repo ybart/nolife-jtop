@@ -19,7 +19,6 @@
  * @since         CakePHP v 1.2.0.7726
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-App::import('Core', 'Folder');
 App::import('Shell', 'Shell', false);
 
 if (!defined('DISABLE_AUTO_DISPATCH')) {
@@ -71,7 +70,12 @@ class ExtractTaskTest extends CakeTestCase {
  */
 	public function testExecute() {
 		$path = TMP . 'tests' . DS . 'extract_task_test';
-		new Folder($path . DS . 'locale', true);
+		if (!is_dir($path . DS . 'locale')) {
+			if (!is_dir($path)) {
+				mkdir($path);
+			}
+			mkdir($path . DS . 'locale');
+		}
 
 		$this->Task->interactive = false;
 
@@ -146,8 +150,7 @@ class ExtractTaskTest extends CakeTestCase {
 		$pattern = '/msgid "You deleted %d message \(domain\)."\nmsgid_plural "You deleted %d messages \(domain\)."/';
 		$this->assertPattern($pattern, $result);
 
-		$Folder = new Folder($path);
-		$Folder->delete();
+		$this->_removeDirectory($path);
 	}
 
 /**
@@ -157,7 +160,12 @@ class ExtractTaskTest extends CakeTestCase {
  */
 	function testExtractMultiplePaths() {
 		$path = TMP . 'tests' . DS . 'extract_task_test';
-		new Folder($path . DS . 'locale', true);
+		if (!is_dir($path . DS . 'locale')) {
+			if (!is_dir($path)) {
+				mkdir($path);
+			}
+			mkdir($path . DS . 'locale');
+		}
 
 		$this->Task->interactive = false;
 
@@ -174,5 +182,27 @@ class ExtractTaskTest extends CakeTestCase {
 
 		$pattern = '/msgid "Add User"/';
 		$this->assertPattern($pattern, $result);
+	}
+
+/**
+ * Remove recursive of files and folder
+ *
+ * @param string $path
+ * @return void
+ */
+	protected function _removeDirectory($path) {
+		if (!is_dir($path)) {
+			return;
+		}
+		$dir = new DirectoryIterator($path);
+		while ($dir->valid()) {
+			if ($dir->isFile() || $dir->isLink()) {
+				unlink($dir->getRealPath());
+			} elseif ($dir->isDir() && !$dir->isDot()) {
+				$this->_removeDirectory($dir->getRealPath());
+			}
+			$dir->next();
+		}
+		rmdir($path);
 	}
 }

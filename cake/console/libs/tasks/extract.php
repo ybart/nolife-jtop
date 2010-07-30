@@ -17,7 +17,7 @@
  * @since         CakePHP(tm) v 1.2.0.5012
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-App::import('Core', 'File');
+
 /**
  * Language string extractor
  *
@@ -378,24 +378,24 @@ class ExtractTask extends Shell {
 			}
 
 			$filename = $domain . '.pot';
-			$File = new File($this->__output . $filename);
+			$File = new SplFileInfo($this->__output . $filename);
 			$response = '';
-			while ($overwriteAll === false && $File->exists() && strtoupper($response) !== 'Y') {
+			while ($overwriteAll === false && $File->isFile() && strtoupper($response) !== 'Y') {
 				$this->out();
 				$response = $this->in(sprintf(__('Error: %s already exists in this location. Overwrite? [Y]es, [N]o, [A]ll'), $filename), array('y', 'n', 'a'), 'y');
 				if (strtoupper($response) === 'N') {
 					$response = '';
 					while ($response == '') {
 						$response = $this->in(sprintf(__("What would you like to name this file?\nExample: %s"), 'new_' . $filename), null, 'new_' . $filename);
-						$File = new File($this->__output . $response);
+						$File = new SplFileInfo($this->__output . $response);
 						$filename = $response;
 					}
 				} elseif (strtoupper($response) === 'A') {
 					$overwriteAll = true;
 				}
 			}
-			$File->write($output);
-			$File->close();
+			$File = new SplFileObject($this->__output . $filename, 'w');
+			$File->fwrite($output);
 		}
 	}
 
@@ -485,9 +485,13 @@ class ExtractTask extends Shell {
  */
 	function __searchFiles() {
 		foreach ($this->__paths as $path) {
-			$Folder = new Folder($path);
-			$files = $Folder->findRecursive('.*\.(php|ctp|thtml|inc|tpl)', true);
-			$this->__files = array_merge($this->__files, $files);
+			$dir = new RecursiveDirectoryIterator($path);
+			while ($dir->valid()) {
+				if (($dir->isFile() || $dir->isLink()) && preg_match('/\.(php|ctp|thtml|inc|tpl)$/', $dir->key())) {
+					$this->__files[] = $dir->key();
+				}
+				$dir->next();
+			}
 		}
 	}
 }
