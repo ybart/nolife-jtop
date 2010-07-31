@@ -378,24 +378,24 @@ class ExtractTask extends Shell {
 			}
 
 			$filename = $domain . '.pot';
-			$File = new SplFileInfo($this->__output . $filename);
+			$file = new SplFileInfo($this->__output . $filename);
 			$response = '';
-			while ($overwriteAll === false && $File->isFile() && strtoupper($response) !== 'Y') {
+			while ($overwriteAll === false && $file->isFile() && strtoupper($response) !== 'Y') {
 				$this->out();
 				$response = $this->in(sprintf(__('Error: %s already exists in this location. Overwrite? [Y]es, [N]o, [A]ll'), $filename), array('y', 'n', 'a'), 'y');
 				if (strtoupper($response) === 'N') {
 					$response = '';
 					while ($response == '') {
 						$response = $this->in(sprintf(__("What would you like to name this file?\nExample: %s"), 'new_' . $filename), null, 'new_' . $filename);
-						$File = new SplFileInfo($this->__output . $response);
+						$file = new SplFileInfo($this->__output . $response);
 						$filename = $response;
 					}
 				} elseif (strtoupper($response) === 'A') {
 					$overwriteAll = true;
 				}
 			}
-			$File = new SplFileObject($this->__output . $filename, 'w');
-			$File->fwrite($output);
+			$file = new SplFileObject($this->__output . $filename, 'w');
+			$file->fwrite($output);
 		}
 	}
 

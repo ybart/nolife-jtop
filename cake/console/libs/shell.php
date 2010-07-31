@@ -438,7 +438,7 @@ class Shell extends Object {
 		}
 
 		try {
-			$File = new SplFileObject($path, 'w');
+			$file = new SplFileObject($path, 'w');
 
 			$lineBreak = "\n";
 			if (DIRECTORY_SEPARATOR == '\\') {
@@ -446,7 +446,7 @@ class Shell extends Object {
 			}
 			$contents = strtr($contents, array("\r\n" => $lineBreak, "\n" => $lineBreak, "\r" => $lineBreak));
 
-			$File->fwrite($contents);
+			$file->fwrite($contents);
 			$this->out(sprintf(__('Wrote `%s`'), $path));
 			return true;
 		} catch (Exception $e) {

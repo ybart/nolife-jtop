@@ -67,8 +67,8 @@ class ProjectTaskTest extends CakeTestCase {
 	public function endTest() {
 		ClassRegistry::flush();
 
-		$Folder = new Folder($this->Task->path . 'bake_test_app');
-		$Folder->delete();
+		$folder = new Folder($this->Task->path . 'bake_test_app');
+		$folder->delete();
 		unset($this->Dispatcher, $this->Task);
 	}
 

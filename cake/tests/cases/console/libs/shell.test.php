@@ -449,7 +449,7 @@ class ShellTest extends CakeTestCase {
 		$path = TMP . 'shell_test';
 		$file = $path . DS . 'file1.php';
 
-		$Folder = new Folder($path, true);
+		$folder = new Folder($path, true);
 
 		$this->Shell->interactive = false;
 
@@ -465,7 +465,7 @@ class ShellTest extends CakeTestCase {
 		$this->assertTrue(file_exists($file));
 		$this->assertEqual(file_get_contents($file), $contents);
 
-		$Folder->delete();
+		$folder->delete();
 	}
 
 /**
@@ -478,7 +478,7 @@ class ShellTest extends CakeTestCase {
 
 		$path = TMP . 'shell_test';
 		$file = $path . DS . 'file1.php';
-		$Folder = new Folder($path, true);
+		$folder = new Folder($path, true);
 
 		$this->Shell->interactive = true;
 
@@ -513,7 +513,7 @@ class ShellTest extends CakeTestCase {
 		$this->assertTrue(file_exists($file));
 		$this->assertEquals($contents, file_get_contents($file));
 
-		$Folder->delete();
+		$folder->delete();
 	}
 
 /**
@@ -527,7 +527,7 @@ class ShellTest extends CakeTestCase {
 		$path = TMP . 'shell_test';
 		$file = $path . DS . 'file1.php';
 
-		$Folder = new Folder($path, true);
+		$folder = new Folder($path, true);
 
 		$this->Shell->interactive = false;
 
@@ -543,7 +543,7 @@ class ShellTest extends CakeTestCase {
 		$this->assertTrue(file_exists($file));
 		$this->assertEqual(file_get_contents($file), $contents);
 
-		$Folder->delete();
+		$folder->delete();
 	}
 
 /**
@@ -557,7 +557,7 @@ class ShellTest extends CakeTestCase {
 		$path = TMP . 'shell_test';
 		$file = $path . DS . 'file1.php';
 
-		$Folder = new Folder($path, true);
+		$folder = new Folder($path, true);
 
 		$this->Shell->interactive = true;
 
@@ -580,7 +580,7 @@ class ShellTest extends CakeTestCase {
 		$this->assertTrue(file_exists($file));
 		$this->assertEqual(file_get_contents($file), $contents);
 
-		$Folder->delete();
+		$folder->delete();
 	}
 
 }

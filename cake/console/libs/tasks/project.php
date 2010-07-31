@@ -103,8 +103,8 @@ class ProjectTask extends Shell {
 			} elseif ($corePath === false) {
 				$this->err(sprintf(__('Unable to set CAKE_CORE_INCLUDE_PATH, you should change it in %s'), $path . 'webroot' .DS .'index.php'));
 			}
-			$Folder = new Folder($path);
-			if (!$Folder->chmod($path . 'tmp', 0777)) {
+			$folder = new Folder($path);
+			if (!$folder->chmod($path . 'tmp', 0777)) {
 				$this->err(sprintf(__('Could not set permissions on %s'), $path . DS .'tmp'));
 				$this->out(sprintf(__('chmod -R 0777 %s'), $path . DS .'tmp'));
 			}
@@ -153,11 +153,11 @@ class ProjectTask extends Shell {
 		if (strtolower($looksGood) == 'y') {
 			$verbose = $this->in(__('Do you want verbose output?'), array('y', 'n'), 'n');
 
-			$Folder = new Folder($skel);
+			$folder = new Folder($skel);
 			if (!empty($this->params['empty'])) {
 				$skip = array();
 			}
-			if ($Folder->copy(array('to' => $path, 'skip' => $skip))) {
+			if ($folder->copy(array('to' => $path, 'skip' => $skip))) {
 				$this->hr();
 				$this->out(sprintf(__('Created: %s in %s'), $app, $path));
 				$this->hr();
@@ -167,7 +167,7 @@ class ProjectTask extends Shell {
 			}
 
 			if (strtolower($verbose) == 'y') {
-				foreach ($Folder->messages() as $message) {
+				foreach ($folder->messages() as $message) {
 					$this->out($message);
 				}
 			}
@@ -209,8 +209,8 @@ class ProjectTask extends Shell {
 			}
 			$string = Security::generateAuthKey();
 			$result = str_replace($match[0], "\t" . 'Configure::write(\'Security.salt\', \''.$string.'\');', $contents);
-			$File = new SplFileObject($path . 'config' . DS . 'core.php', 'w');
-			if ($File->fwrite($result)) {
+			$file = new SplFileObject($path . 'config' . DS . 'core.php', 'w');
+			if ($file->fwrite($result)) {
 				return true;
 			}
 			return false;
@@ -232,8 +232,8 @@ class ProjectTask extends Shell {
 				}
 				$string = substr(bin2hex(Security::generateAuthKey()), 0, 30);
 				$result = str_replace($match[0], "\t" . 'Configure::write(\'Security.cipherSeed\', \''.$string.'\');', $contents);
-				$File = new SplFileObject($path . 'config' . DS . 'core.php', 'w');
-				if ($File->write($result)) {
+				$file = new SplFileObject($path . 'config' . DS . 'core.php', 'w');
+				if ($file->write($result)) {
 					return true;
 				}
 				return false;
@@ -253,8 +253,8 @@ class ProjectTask extends Shell {
 			if (preg_match('/([\\t\\x20]*define\\(\\\'CAKE_CORE_INCLUDE_PATH\\\',[\\t\\x20\'A-z0-9]*\\);)/', $contents, $match)) {
 				$root = strpos(CAKE_CORE_INCLUDE_PATH, '/') === 0 ? " DS . '" : "'";
 				$result = str_replace($match[0], "\t\tdefine('CAKE_CORE_INCLUDE_PATH', " . $root . str_replace(DS, "' . DS . '", trim(CAKE_CORE_INCLUDE_PATH, DS)) . "');", $contents);
-				$File = new SplFileObject($path . 'webroot' . DS . 'index.php', 'w');
-				if (!$File->write($result)) {
+				$file = new SplFileObject($path . 'webroot' . DS . 'index.php', 'w');
+				if (!$file->write($result)) {
 					return false;
 				}
 			} else {
@@ -264,8 +264,8 @@ class ProjectTask extends Shell {
 			$contents = file_get_contents($path . 'webroot' . DS . 'test.php');
 			if (preg_match('/([\\t\\x20]*define\\(\\\'CAKE_CORE_INCLUDE_PATH\\\',[\\t\\x20\'A-z0-9]*\\);)/', $contents, $match)) {
 				$result = str_replace($match[0], "\t\tdefine('CAKE_CORE_INCLUDE_PATH', " . $root . str_replace(DS, "' . DS . '", trim(CAKE_CORE_INCLUDE_PATH, DS)) . "');", $contents);
-				$File = new SplFileObject($path . 'webroot' . DS . 'test.php', 'w');
-				if (!$File->write($result)) {
+				$file = new SplFileObject($path . 'webroot' . DS . 'test.php', 'w');
+				if (!$file->write($result)) {
 					return false;
 				}
 			} else {
@@ -286,8 +286,8 @@ class ProjectTask extends Shell {
 		$contents = file_get_contents($path . 'core.php');
 		if (preg_match('%([/\\t\\x20]*Configure::write\(\'Routing.prefixes\',[\\t\\x20\'a-z,\)\(]*\\);)%', $contents, $match)) {
 			$result = str_replace($match[0], "\t" . 'Configure::write(\'Routing.prefixes\', array(\''.$name.'\'));', $contents);
-			$File = new SplFileObject($path . 'core.php', 'w');
-			if ($File->write($result)) {
+			$file = new SplFileObject($path . 'core.php', 'w');
+			if ($file->write($result)) {
 				Configure::write('Routing.prefixes', array($name));
 				return true;
 			} else {

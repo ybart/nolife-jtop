@@ -145,8 +145,8 @@ class ExtractTaskTest extends CakeTestCase {
 		$pattern = '/msgid "You deleted %d message \(domain\)."\nmsgid_plural "You deleted %d messages \(domain\)."/';
 		$this->assertPattern($pattern, $result);
 
-		$Folder = new Folder($path);
-		$Folder->delete();
+		$folder = new Folder($path);
+		$folder->delete();
 	}
 
 /**

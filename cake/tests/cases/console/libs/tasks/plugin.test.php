@@ -180,8 +180,8 @@ class PluginTaskTest extends CakeTestCase {
 		$this->assertTrue(is_dir($path . DS . 'libs'), 'No libs dir %s');
 		$this->assertTrue(is_dir($path . DS . 'webroot'), 'No webroot dir %s');
 
-		$Folder = new Folder($this->Task->path . 'bake_test_plugin');
-		$Folder->delete();
+		$folder = new Folder($this->Task->path . 'bake_test_plugin');
+		$folder->delete();
 	}
 
 /**
@@ -207,8 +207,8 @@ class PluginTaskTest extends CakeTestCase {
 		$this->Task->args = array();
 		$this->Task->execute();
 
-		$Folder = new Folder($path);
-		$Folder->delete();
+		$folder = new Folder($path);
+		$folder->delete();
 	}
 
 /**
@@ -237,8 +237,8 @@ class PluginTaskTest extends CakeTestCase {
 
 		$this->Task->execute();
 
-		$Folder = new Folder($this->Task->path . 'bake_test_plugin');
-		$Folder->delete();
+		$folder = new Folder($this->Task->path . 'bake_test_plugin');
+		$folder->delete();
 	}
 
 /**
@@ -254,12 +254,12 @@ class PluginTaskTest extends CakeTestCase {
 		$this->Task->Model->expects($this->once())->method('loadTasks');
 		$this->Task->Model->expects($this->once())->method('execute');
 
-		$Folder = new Folder($this->Task->path . 'bake_test_plugin', true);
+		$folder = new Folder($this->Task->path . 'bake_test_plugin', true);
 
 		$this->Task->Dispatch->args = array('BakeTestPlugin', 'model');
 		$this->Task->args = $this->Task->Dispatch->args;
 
 		$this->Task->execute();
-		$Folder->delete();
+		$folder->delete();
 	}
 }

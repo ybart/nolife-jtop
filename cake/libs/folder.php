@@ -298,25 +298,25 @@ class Folder {
 /**
  * Private method to get subdirectories
  *
- * @param object $Folder RecursiveDiretoryIterator
+ * @param object $folder RecursiveDiretoryIterator
  * @param mixed $exceptions Array of files to exclude from the read that will be performed.
  * @return void
  */
-	function __tree($Folder, $exceptions) {
+	function __tree($folder, $exceptions) {
 		$skipHidden = isset($exceptions['.']) || $exceptions === true;
-		while ($Folder->valid()) {
-			$basename = $Folder->getBasename();
-			if ($Folder->isDot() || ($skipHidden && $basename[0] === '.') || isset($exceptions[$basename])) {
-				$Folder->next();
+		while ($folder->valid()) {
+			$basename = $folder->getBasename();
+			if ($folder->isDot() || ($skipHidden && $basename[0] === '.') || isset($exceptions[$basename])) {
+				$folder->next();
 				continue;
 			}
-			if ($Folder->isFile() || $Folder->isLink()) {
-				$this->__files[] = $Folder->getPathname();
-			} elseif ($Folder->isDir()) {
-				$this->__directories[] = $Folder->getPathname();
-				$this->__tree($Folder->getChildren(), $exceptions);
+			if ($folder->isFile() || $folder->isLink()) {
+				$this->__files[] = $folder->getPathname();
+			} elseif ($folder->isDir()) {
+				$this->__directories[] = $folder->getPathname();
+				$this->__tree($folder->getChildren(), $exceptions);
 			}
-			$Folder->next();
+			$folder->next();
 		}
 	}
 

@@ -234,8 +234,8 @@ class FileTest extends CakeTestCase {
  */
 	function testCreate() {
 		$tmpFile = TMP.'tests'.DS.'cakephp.file.test.tmp';
-		$File = new File($tmpFile, true, 0777);
-		$this->assertTrue($File->exists());
+		$file = new File($tmpFile, true, 0777);
+		$this->assertTrue($file->exists());
 	}
 
 /**

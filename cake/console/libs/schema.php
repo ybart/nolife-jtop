@@ -215,13 +215,13 @@ class SchemaShell extends Shell {
 				$write .= '.sql';
 			}
 			if (strpos($write, DS) !== false) {
-				$File = new SplFileObject($write, 'w');
+				$file = new SplFileObject($write, 'w');
 			} else {
-				$File = new SplFileObject($this->Schema->path . DS . $write, 'w');
+				$file = new SplFileObject($this->Schema->path . DS . $write, 'w');
 			}
 
-			if ($File->fwrite($contents)) {
-				$this->out(sprintf(__('SQL dump file created in %s'), $File->getRealPath()));
+			if ($file->fwrite($contents)) {
+				$this->out(sprintf(__('SQL dump file created in %s'), $file->getRealPath()));
 				$this->_stop();
 			} else {
 				$this->err(__('SQL dump could not be created'));

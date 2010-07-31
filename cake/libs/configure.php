@@ -959,8 +959,8 @@ class App {
 				if (!class_exists('Folder')) {
 					require LIBS . 'folder.php';
 				}
-				$Folder = new Folder();
-				$directories = $Folder->tree($path, array('.svn', '.git', 'CVS', 'tests', 'templates'), 'dir');
+				$folder = new Folder();
+				$directories = $folder->tree($path, array('.svn', '.git', 'CVS', 'tests', 'templates'), 'dir');
 				sort($directories);
 				self::$__paths[$path] = $directories;
 			}
@@ -1193,19 +1193,19 @@ class App {
 			return array();
 		}
 		$items = array();
-		$Folder = new DirectoryIterator($path);
+		$folder = new DirectoryIterator($path);
 
 		if (!$suffix) {
-			while ($Folder->valid()) {
-				if ($Folder->isDir() && !$Folder->isDot() && substr($Folder->getBasename(), 0, 1) !== '.') {
-					$items[] = $Folder->getBasename();
+			while ($folder->valid()) {
+				if ($folder->isDir() && !$folder->isDot() && substr($folder->getBasename(), 0, 1) !== '.') {
+					$items[] = $folder->getBasename();
 				}
-				$Folder->next();
+				$folder->next();
 			}
 		} else {
-			while ($Folder->valid()) {
-				if ($Folder->isFile() || $Folder->isLink()) {
-					$item = $Folder->getBasename();
+			while ($folder->valid()) {
+				if ($folder->isFile() || $folder->isLink()) {
+					$item = $folder->getBasename();
 					if (substr($item, - strlen($suffix)) === $suffix) {
 						if ($extension) {
 							$items[] = $item;
@@ -1214,7 +1214,7 @@ class App {
 						}
 					}
 				}
-				$Folder->next();
+				$folder->next();
 			}
 		}
 		return $items;

@@ -519,8 +519,8 @@ class BasicsTest extends CakeTestCase {
 		$this->assertFalse(fileExistsInPath('file1'));
 		$this->assertFalse(fileExistsInPath('file4.php'));
 
-		$Folder = new Folder($path);
-		$Folder->delete();
+		$folder = new Folder($path);
+		$folder->delete();
 
 		ini_set('include_path', $_includePath);
 	}

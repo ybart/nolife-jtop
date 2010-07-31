@@ -279,26 +279,26 @@ class FileEngineTest extends CakeTestCase {
  * @return void
  */
 	function testClearWithPrefixes() {
-		$FileOne =& new FileEngine();
-		$FileOne->init(array(
+		$fileOne =& new FileEngine();
+		$fileOne->init(array(
 			'prefix' => 'prefix_one_',
 			'duration' => DAY
 		));
-		$FileTwo =& new FileEngine();
-		$FileTwo->init(array(
+		$fileTwo =& new FileEngine();
+		$fileTwo->init(array(
 			'prefix' => 'prefix_two_',
 			'duration' => DAY
 		));
 
 		$data1 = $data2 = $expected = 'content to cache';
-		$FileOne->write('key_one', $data1, DAY);
-		$FileTwo->write('key_two', $data2, DAY);
+		$fileOne->write('key_one', $data1, DAY);
+		$fileTwo->write('key_two', $data2, DAY);
 
-		$this->assertEqual($FileOne->read('key_one'), $expected);
-		$this->assertEqual($FileTwo->read('key_two'), $expected);
+		$this->assertEqual($fileOne->read('key_one'), $expected);
+		$this->assertEqual($fileTwo->read('key_two'), $expected);
 
-		$FileOne->clear(false);
-		$this->assertEqual($FileTwo->read('key_two'), $expected, 'secondary config was cleared by accident.');
+		$fileOne->clear(false);
+		$this->assertEqual($fileTwo->read('key_two'), $expected, 'secondary config was cleared by accident.');
 	}
 
 /**
