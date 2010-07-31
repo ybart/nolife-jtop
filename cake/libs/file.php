@@ -31,6 +31,7 @@ if (!class_exists('Folder')) {
  *
  * @package       cake
  * @subpackage    cake.cake.libs
+ * @depecrated
  */
 class File {
 
