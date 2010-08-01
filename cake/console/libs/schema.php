@@ -159,7 +159,7 @@ class SchemaShell extends Shell {
 			$count = 0;
 			$files = new DirectoryIterator($this->Schema->path);
 			while ($files->valid()) {
-				if ($files->isFile() && preg_match('/schema(?:[_\d]*)?\.php$/', $files->key())) {
+				if ($files->isFile() && preg_match('/schema(?:[_\d]*)?\.php$/', $files->getBasename())) {
 					$count++;
 				}
 				$files->next();

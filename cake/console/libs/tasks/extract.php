@@ -487,8 +487,8 @@ class ExtractTask extends Shell {
 		foreach ($this->__paths as $path) {
 			$dir = new RecursiveDirectoryIterator($path);
 			while ($dir->valid()) {
-				if (($dir->isFile() || $dir->isLink()) && preg_match('/\.(php|ctp|thtml|inc|tpl)$/', $dir->key())) {
-					$this->__files[] = $dir->key();
+				if (($dir->isFile() || $dir->isLink()) && preg_match('/\.(php|ctp|thtml|inc|tpl)$/', $dir->getBasename())) {
+					$this->__files[] = $dir->getPathname();
 				}
 				$dir->next();
 			}
