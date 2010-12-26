@@ -331,9 +331,9 @@ class Model extends Object {
 	public $__backAssociation = array();
 
 	public $__backInnerAssociation = array();
-	
+
 	public $__backOriginalAssociation = array();
-	
+
 	public $__backContainableAssociation = array();
 
 /**
@@ -2156,7 +2156,7 @@ class Model extends Object {
 
 		if ($query['callbacks'] === true || $query['callbacks'] === 'before') {
 			$return = $this->Behaviors->trigger(
-				'beforeFind', 
+				'beforeFind',
 				array(&$this, $query),
 				array('break' => true, 'breakOn' => array(false, null), 'modParams' => 1)
 			);
@@ -2602,7 +2602,7 @@ class Model extends Object {
 				'allowEmpty' => null,
 				'required' => null,
 				'rule' => 'blank',
-				'last' => false,
+				'last' => true,
 				'on' => null
 			);
 
@@ -2741,7 +2741,7 @@ class Model extends Object {
 		if (!is_array($this->validationErrors)) {
 			$this->validationErrors = array();
 		}
-		$this->validationErrors[$field] = $value;
+		$this->validationErrors[$field] []= $value;
 	}
 
 /**

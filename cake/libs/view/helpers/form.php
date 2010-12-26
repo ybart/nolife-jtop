@@ -468,8 +468,8 @@ class FormHelper extends AppHelper {
  * - `class` string  The classname for the error message
  *
  * @param string $field A field name, like "Modelname.fieldname"
- * @param mixed $text Error message or array of $options. If array, `attributes` key
- * will get used as html attributes for error container
+ * @param mixed $text Error message as string or array of messages.
+ * If array contains `attributes` key it will be used as options for error container
  * @param array $options Rendering options for <div /> wrapper tag
  * @return string If there are errors this method returns an error message, otherwise null.
  * @access public
@@ -481,35 +481,62 @@ class FormHelper extends AppHelper {
 		$this->setEntity($field);
 
 		if ($error = $this->tagIsInvalid()) {
-			if (is_array($error)) {
-				list(,,$field) = explode('.', $field);
-				if (isset($error[$field])) {
-					$error = $error[$field];
-				} else {
-					return null;
-				}
-			}
-
-			if (is_array($text) && is_numeric($error) && $error > 0) {
-				$error--;
-			}
 			if (is_array($text)) {
-				$options = array_merge($options, array_intersect_key($text, $defaults));
 				if (isset($text['attributes']) && is_array($text['attributes'])) {
 					$options = array_merge($options, $text['attributes']);
+					unset($text['attributes']);
 				}
-				$text = isset($text[$error]) ? $text[$error] : null;
-				unset($options[$error]);
+				$tmp = array();
+				foreach ($error as &$e) {
+					if (isset($text[$e])) {
+						$tmp []= $text[$e];
+					} else {
+						$tmp []= $e;
+					}
+				}
+				$text = $tmp;
 			}
 
 			if ($text != null) {
 				$error = $text;
-			} elseif (is_numeric($error)) {
-				$error = __('Error in field %s', Inflector::humanize($this->field()));
+			}
+			if (is_array($error)) {
+				foreach ($error as &$e) {
+					if (is_numeric($e)) {
+						$e = __('Error in field %s', Inflector::humanize($this->field()));
+					}
+				}
 			}
 			if ($options['escape']) {
 				$error = h($error);
 				unset($options['escape']);
+			}
+			if (is_array($error)) {
+				if (count($error) > 1) {
+					$listParams = array();
+					if (isset($options['listOptions'])) {
+						if (is_string($options['listOptions'])) {
+							$listParams []= $options['listOptions'];
+						} else {
+							if (isset($options['listOptions']['itemOptions'])) {
+								$listParams []= $options['listOptions']['itemOptions'];
+								unset($options['listOptions']['itemOptions']);
+							} else {
+								$listParams []= array();
+							}
+							if (isset($options['listOptions']['tag'])) {
+								$listParams []= $options['listOptions']['tag'];
+								unset($options['listOptions']['tag']);
+							}
+							array_unshift($listParams, $options['listOptions']);
+						}
+						unset($options['listOptions']);
+					}
+					array_unshift($listParams, $error);
+					$error = call_user_func_array(array($this->Html, 'nestedList'), $listParams);
+				} else {
+					$error = array_pop($error);
+				}
 			}
 			if ($options['wrap']) {
 				$tag = is_string($options['wrap']) ? $options['wrap'] : 'div';
@@ -1122,7 +1149,7 @@ class FormHelper extends AppHelper {
 	}
 
 /**
- * Missing method handler - implements various simple input types. Is used to create inputs 
+ * Missing method handler - implements various simple input types. Is used to create inputs
  * of various types.  e.g. `$this->Form->text();` will create `<input type="text" />` while
  * `$this->Form->range();` will create `<input type="range" />`
  *
@@ -1495,7 +1522,7 @@ class FormHelper extends AppHelper {
 		$style = null;
 		$tag = null;
 		$attributes += array(
-			'class' => null, 
+			'class' => null,
 			'escape' => true,
 			'secure' => null,
 			'empty' => '',
@@ -2046,7 +2073,7 @@ class FormHelper extends AppHelper {
 	function __selectOptions($elements = array(), $parents = array(), $showParents = null, $attributes = array()) {
 		$select = array();
 		$attributes = array_merge(
-			array('escape' => true, 'style' => null, 'value' => null, 'class' => null), 
+			array('escape' => true, 'style' => null, 'value' => null, 'class' => null),
 			$attributes
 		);
 		$selectedIsEmpty = ($attributes['value'] === '' || $attributes['value'] === null);

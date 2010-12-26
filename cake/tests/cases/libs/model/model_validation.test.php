@@ -49,7 +49,7 @@ class ModelValidationTest extends BaseModelTest {
 			'validator' => array(
 				'rule' => 'customValidatorWithParams',
 				'on' => null,
-				'last' => false,
+				'last' => true,
 				'allowEmpty' => false,
 				'required' => true
 			),
@@ -63,7 +63,7 @@ class ModelValidationTest extends BaseModelTest {
 			'required' => true
 		);
 		$expected = array(
-			'title' => 'This field will *never* validate! Muhahaha!'
+			'title' => array('This field will *never* validate! Muhahaha!')
 		);
 
 		$this->assertEqual($TestModel->invalidFields(), $expected);
@@ -85,7 +85,7 @@ class ModelValidationTest extends BaseModelTest {
 			'five' => array(
 				'rule' => array(1 => 'one', 2 => 'two', 3 => null, 4 => 'four'),
 				'on' => null,
-				'last' => false,
+				'last' => true,
 				'allowEmpty' => false,
 				'required' => true
 			),
@@ -111,7 +111,7 @@ class ModelValidationTest extends BaseModelTest {
 			'six' => array(
 				'rule' => array(1 => 'one', 2 => array('two'), 3 => null, 4 => 'four', 5 => array('five' => 5)),
 				'on' => null,
-				'last' => false,
+				'last' => true,
 				'allowEmpty' => false,
 				'required' => true
 			)
@@ -138,29 +138,29 @@ class ModelValidationTest extends BaseModelTest {
 		));
 		$TestModel->invalidFields(array('fieldList' => array('title')));
 		$expected = array(
-			'title' => 'This field cannot be left blank'
+			'title' => array('This field cannot be left blank')
 		);
 		$this->assertEqual($TestModel->validationErrors, $expected);
 		$TestModel->validationErrors = array();
 
 		$TestModel->invalidFields(array('fieldList' => array('name')));
 		$expected = array(
-			'name' => 'This field cannot be left blank'
+			'name' => array('This field cannot be left blank')
 		);
 		$this->assertEqual($TestModel->validationErrors, $expected);
 		$TestModel->validationErrors = array();
 
 		$TestModel->invalidFields(array('fieldList' => array('name', 'title')));
 		$expected = array(
-			'name' => 'This field cannot be left blank',
-			'title' => 'This field cannot be left blank'
+			'name' => array('This field cannot be left blank'),
+			'title' => array('This field cannot be left blank')
 		);
 		$this->assertEqual($TestModel->validationErrors, $expected);
 		$TestModel->validationErrors = array();
 
 		$TestModel->whitelist = array('name');
 		$TestModel->invalidFields();
-		$expected = array('name' => 'This field cannot be left blank');
+		$expected = array('name' => array('This field cannot be left blank'));
 		$this->assertEqual($TestModel->validationErrors, $expected);
 
 		$this->assertEqual($TestModel->validate, $validate);
@@ -186,7 +186,7 @@ class ModelValidationTest extends BaseModelTest {
 		$TestModel->whitelist = array('name');
 		$TestModel->save(array('name' => '#$$#'));
 
-		$expected = array('name' => 'This field cannot be left blank');
+		$expected = array('name' => array('This field cannot be left blank'));
 		$this->assertEqual($TestModel->validationErrors, $expected);
 	}
 
@@ -517,7 +517,7 @@ class ModelValidationTest extends BaseModelTest {
 		$this->assertFalse($result);
 		$result = $TestModel->validationErrors;
 		$expected = array(
-			'title' => 'onlyLetters'
+			'title' => array('tooShort')
 		);
 		$this->assertEqual($result, $expected);
 
@@ -525,7 +525,7 @@ class ModelValidationTest extends BaseModelTest {
 			'title' => array(
 				'tooShort' => array(
 					'rule' => array('minLength', 50),
-					'last' => true
+					'last' => false
 				),
 				'onlyLetters' => array('rule' => '/^[a-z]+$/i')
 			),
@@ -538,7 +538,7 @@ class ModelValidationTest extends BaseModelTest {
 		$this->assertFalse($result);
 		$result = $TestModel->validationErrors;
 		$expected = array(
-			'title' => 'tooShort'
+			'title' => array('tooShort', 'onlyLetters')
 		);
 		$this->assertEqual($result, $expected);
 	}
@@ -568,7 +568,7 @@ class ModelValidationTest extends BaseModelTest {
 
 		$JoinThing->validate = array('doomed' => array('rule' => 'notEmpty'));
 
-		$expectedError = array('doomed' => 'This field cannot be left blank');
+		$expectedError = array('doomed' => array('This field cannot be left blank'));
 
 		$Something->create();
 		$result = $Something->save($data);
@@ -620,7 +620,7 @@ class ModelValidationTest extends BaseModelTest {
 		$JoinThing =& $Something->JoinThing;
 
 		$JoinThing->validate = array('doomed' => array('rule' => 'notEmpty'));
-		$expectedError = array('doomed' => 'This field cannot be left blank');
+		$expectedError = array('doomed' => array('This field cannot be left blank'));
 
 		$Something->create();
 		$result = $Something->saveAll($data, array('validate' => 'only'));
