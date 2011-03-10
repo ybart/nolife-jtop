@@ -87,7 +87,7 @@ if (isset($filePresent)):
 		require LIBS . 'model' . DS . 'connection_manager.php';
 	}
 	$db = ConnectionManager::getInstance();
-	@$connected = $db->getDataSource('default');
+	$connected = $db->getDataSource('default');
 ?>
 <p>
 	<?php
